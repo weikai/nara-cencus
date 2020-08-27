@@ -20,9 +20,9 @@ class Enumeration
     private $id;
 
     /**
-     * @ORM\OneToMany(targetEntity=MapImage::class, mappedBy="enum")
+     * @ORM\OneToMany(targetEntity=CensusImage::class, mappedBy="enum")
      */
-    private $mapImages;
+    private $censusImages;
 
     /**
      * @ORM\ManyToOne(targetEntity=State::class, inversedBy="enumerations")
@@ -49,7 +49,7 @@ class Enumeration
 
     public function __construct()
     {
-        $this->mapImages = new ArrayCollection();
+        $this->censusImages = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -58,30 +58,30 @@ class Enumeration
     }
 
     /**
-     * @return Collection|MapImage[]
+     * @return Collection|CensusImage[]
      */
-    public function getMapImages(): Collection
+    public function getCensusImages(): Collection
     {
-        return $this->mapImages;
+        return $this->censusImages;
     }
 
-    public function addMapImage(MapImage $mapImage): self
+    public function addCensusImage(CensusImage $censusImage): self
     {
-        if (!$this->mapImages->contains($mapImage)) {
-            $this->mapImages[] = $mapImage;
-            $mapImage->setEnum($this);
+        if (!$this->censusImages->contains($censusImage)) {
+            $this->censusImages[] = $censusImage;
+            $censusImage->setEnum($this);
         }
 
         return $this;
     }
 
-    public function removeMapImage(MapImage $mapImage): self
+    public function removeCensusImage(CensusImage $censusImage): self
     {
-        if ($this->mapImages->contains($mapImage)) {
-            $this->mapImages->removeElement($mapImage);
+        if ($this->censusImages->contains($censusImage)) {
+            $this->censusImages->removeElement($censusImage);
             // set the owning side to null (unless already changed)
-            if ($mapImage->getEnum() === $this) {
-                $mapImage->setEnum(null);
+            if ($censusImage->getEnum() === $this) {
+                $censusImage->setEnum(null);
             }
         }
 

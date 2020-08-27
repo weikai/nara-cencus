@@ -2,25 +2,25 @@
 
 namespace App\Repository;
 
-use App\Entity\MapImage;
+use App\Entity\CensusImage;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method MapImage|null find($id, $lockMode = null, $lockVersion = null)
- * @method MapImage|null findOneBy(array $criteria, array $orderBy = null)
- * @method MapImage[]    findAll()
- * @method MapImage[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method CensusImage|null find($id, $lockMode = null, $lockVersion = null)
+ * @method CensusImage|null findOneBy(array $criteria, array $orderBy = null)
+ * @method CensusImage[]    findAll()
+ * @method CensusImage[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class MapImageRepository extends ServiceEntityRepository
+class CensusImageRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, MapImage::class);
+        parent::__construct($registry, CensusImage::class);
     }
 
     // /**
-    //  * @return MapImage[] Returns an array of MapImage objects
+    //  * @return CensusImage[] Returns an array of CensusImage objects
     //  */
     /*
     public function findByExampleField($value)
@@ -37,7 +37,7 @@ class MapImageRepository extends ServiceEntityRepository
     */
 
     /*
-    public function findOneBySomeField($value): ?MapImage
+    public function findOneBySomeField($value): ?CensusImage
     {
         return $this->createQueryBuilder('m')
             ->andWhere('m.exampleField = :val')

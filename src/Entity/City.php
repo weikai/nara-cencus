@@ -30,9 +30,9 @@ class City
     private $cityStates;
 
     /**
-     * @ORM\OneToMany(targetEntity=MapImage::class, mappedBy="City")
+     * @ORM\OneToMany(targetEntity=CensusImage::class, mappedBy="City")
      */
-    private $mapImages;
+    private $censusImages;
 
     /**
      * @ORM\OneToMany(targetEntity=Enumeration::class, mappedBy="city")
@@ -42,7 +42,7 @@ class City
     public function __construct()
     {
         $this->cityStates = new ArrayCollection();
-        $this->mapImages = new ArrayCollection();
+        $this->censusImages = new ArrayCollection();
         $this->enumerations = new ArrayCollection();
     }
 
@@ -95,30 +95,30 @@ class City
     }
 
     /**
-     * @return Collection|MapImage[]
+     * @return Collection|CensusImage[]
      */
-    public function getMapImages(): Collection
+    public function getCensusImages(): Collection
     {
-        return $this->mapImages;
+        return $this->censusImages;
     }
 
-    public function addMapImage(MapImage $mapImage): self
+    public function addCensusImage(CensusImage $censusImage): self
     {
-        if (!$this->mapImages->contains($mapImage)) {
-            $this->mapImages[] = $mapImage;
-            $mapImage->setCity($this);
+        if (!$this->censusImages->contains($censusImage)) {
+            $this->censusImages[] = $censusImage;
+            $censusImage->setCity($this);
         }
 
         return $this;
     }
 
-    public function removeMapImage(MapImage $mapImage): self
+    public function removeCensusImage(CensusImage $censusImage): self
     {
-        if ($this->mapImages->contains($mapImage)) {
-            $this->mapImages->removeElement($mapImage);
+        if ($this->censusImages->contains($censusImage)) {
+            $this->censusImages->removeElement($censusImage);
             // set the owning side to null (unless already changed)
-            if ($mapImage->getCity() === $this) {
-                $mapImage->setCity(null);
+            if ($censusImage->getCity() === $this) {
+                $censusImage->setCity(null);
             }
         }
 

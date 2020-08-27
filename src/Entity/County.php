@@ -35,9 +35,9 @@ class County
     private $edSummaries;
 
     /**
-     * @ORM\OneToMany(targetEntity=MapImage::class, mappedBy="County")
+     * @ORM\OneToMany(targetEntity=CensusImage::class, mappedBy="County")
      */
-    private $mapImages;
+    private $censusImages;
 
     /**
      * @ORM\OneToMany(targetEntity=Enumeration::class, mappedBy="County")
@@ -48,7 +48,7 @@ class County
     {
         $this->cityStates = new ArrayCollection();
         $this->edSummaries = new ArrayCollection();
-        $this->mapImages = new ArrayCollection();
+        $this->censusImages = new ArrayCollection();
         $this->enumerations = new ArrayCollection();
     }
 
@@ -132,30 +132,30 @@ class County
     }
 
     /**
-     * @return Collection|MapImage[]
+     * @return Collection|CensusImage[]
      */
-    public function getMapImages(): Collection
+    public function getCensusImages(): Collection
     {
-        return $this->mapImages;
+        return $this->censusImages;
     }
 
-    public function addMapImage(MapImage $mapImage): self
+    public function addCensusImage(CensusImage $censusImage): self
     {
-        if (!$this->mapImages->contains($mapImage)) {
-            $this->mapImages[] = $mapImage;
-            $mapImage->setCounty($this);
+        if (!$this->censusImages->contains($censusImage)) {
+            $this->censusImages[] = $censusImage;
+            $censusImage->setCounty($this);
         }
 
         return $this;
     }
 
-    public function removeMapImage(MapImage $mapImage): self
+    public function removeCensusImage(CensusImage $censusImage): self
     {
-        if ($this->mapImages->contains($mapImage)) {
-            $this->mapImages->removeElement($mapImage);
+        if ($this->censusImages->contains($censusImage)) {
+            $this->censusImages->removeElement($censusImage);
             // set the owning side to null (unless already changed)
-            if ($mapImage->getCounty() === $this) {
-                $mapImage->setCounty(null);
+            if ($censusImage->getCounty() === $this) {
+                $censusImage->setCounty(null);
             }
         }
 

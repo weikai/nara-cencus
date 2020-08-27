@@ -40,9 +40,9 @@ class State
     private $edSummaries;
 
     /**
-     * @ORM\OneToMany(targetEntity=MapImage::class, mappedBy="State")
+     * @ORM\OneToMany(targetEntity=CensusImage::class, mappedBy="State")
      */
-    private $mapImages;
+    private $censusImages;
 
     /**
      * @ORM\OneToMany(targetEntity=Enumeration::class, mappedBy="State")
@@ -53,7 +53,7 @@ class State
     {
         $this->cityStates = new ArrayCollection();
         $this->edSummaries = new ArrayCollection();
-        $this->mapImages = new ArrayCollection();
+        $this->censusImages = new ArrayCollection();
         $this->enumerations = new ArrayCollection();
     }
 
@@ -149,30 +149,30 @@ class State
     }
 
     /**
-     * @return Collection|MapImage[]
+     * @return Collection|CensusImage[]
      */
-    public function getMapImages(): Collection
+    public function getCensusImages(): Collection
     {
-        return $this->mapImages;
+        return $this->censusImages;
     }
 
-    public function addMapImage(MapImage $mapImage): self
+    public function addCensusImage(CensusImage $censusImage): self
     {
-        if (!$this->mapImages->contains($mapImage)) {
-            $this->mapImages[] = $mapImage;
-            $mapImage->setState($this);
+        if (!$this->censusImages->contains($censusImage)) {
+            $this->censusImages[] = $censusImage;
+            $censusImage->setState($this);
         }
 
         return $this;
     }
 
-    public function removeMapImage(MapImage $mapImage): self
+    public function removeCensusImage(CensusImage $censusImage): self
     {
-        if ($this->mapImages->contains($mapImage)) {
-            $this->mapImages->removeElement($mapImage);
+        if ($this->censusImages->contains($censusImage)) {
+            $this->censusImages->removeElement($censusImage);
             // set the owning side to null (unless already changed)
-            if ($mapImage->getState() === $this) {
-                $mapImage->setState(null);
+            if ($censusImage->getState() === $this) {
+                $censusImage->setState(null);
             }
         }
 

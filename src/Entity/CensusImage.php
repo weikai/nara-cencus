@@ -2,13 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\MapImageRepository;
+use App\Repository\CensusImageRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=MapImageRepository::class)
+ * @ORM\Entity(repositoryClass=CensusImageRepository::class)
  */
-class MapImage
+class CensusImage
 {
     /**
      * @ORM\Id()
@@ -18,30 +18,30 @@ class MapImage
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=RecordType::class, inversedBy="mapImages")
+     * @ORM\ManyToOne(targetEntity=RecordType::class, inversedBy="censusImages")
      * @ORM\JoinColumn(nullable=false)
      */
     private $type;
 
     /**
-     * @ORM\ManyToOne(targetEntity=State::class, inversedBy="mapImages")
+     * @ORM\ManyToOne(targetEntity=State::class, inversedBy="censusImages")
      * @ORM\JoinColumn(nullable=false)
      */
     private $State;
 
     /**
-     * @ORM\ManyToOne(targetEntity=County::class, inversedBy="mapImages")
+     * @ORM\ManyToOne(targetEntity=County::class, inversedBy="censusImages")
      * @ORM\JoinColumn(nullable=false)
      */
     private $County;
 
     /**
-     * @ORM\ManyToOne(targetEntity=City::class, inversedBy="mapImages")
+     * @ORM\ManyToOne(targetEntity=City::class, inversedBy="censusImages")
      */
     private $City;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Enumeration::class, inversedBy="mapImages")
+     * @ORM\ManyToOne(targetEntity=Enumeration::class, inversedBy="censusImages")
      */
     private $enum;
 

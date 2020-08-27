@@ -20,9 +20,9 @@ class RecordType
     private $id;
 
     /**
-     * @ORM\OneToMany(targetEntity=MapImage::class, mappedBy="type")
+     * @ORM\OneToMany(targetEntity=CensusImage::class, mappedBy="type")
      */
-    private $mapImages;
+    private $censusImages;
 
     /**
      * @ORM\Column(type="string", length=20)
@@ -36,7 +36,7 @@ class RecordType
 
     public function __construct()
     {
-        $this->mapImages = new ArrayCollection();
+        $this->censusImages = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -45,30 +45,30 @@ class RecordType
     }
 
     /**
-     * @return Collection|MapImage[]
+     * @return Collection|CensusImage[]
      */
-    public function getMapImages(): Collection
+    public function getCensusImages(): Collection
     {
-        return $this->mapImages;
+        return $this->censusImages;
     }
 
-    public function addMapImage(MapImage $mapImage): self
+    public function addCensusImage(CensusImage $censusImage): self
     {
-        if (!$this->mapImages->contains($mapImage)) {
-            $this->mapImages[] = $mapImage;
-            $mapImage->setType($this);
+        if (!$this->censusImages->contains($censusImage)) {
+            $this->censusImages[] = $censusImage;
+            $censusImage->setType($this);
         }
 
         return $this;
     }
 
-    public function removeMapImage(MapImage $mapImage): self
+    public function removeCensusImage(CensusImage $censusImage): self
     {
-        if ($this->mapImages->contains($mapImage)) {
-            $this->mapImages->removeElement($mapImage);
+        if ($this->censusImages->contains($censusImage)) {
+            $this->censusImages->removeElement($censusImage);
             // set the owning side to null (unless already changed)
-            if ($mapImage->getType() === $this) {
-                $mapImage->setType(null);
+            if ($censusImage->getType() === $this) {
+                $censusImage->setType(null);
             }
         }
 
