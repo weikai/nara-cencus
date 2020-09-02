@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query;
 
 
 /**
@@ -157,6 +158,65 @@ class CensusApiController extends AbstractController
             
         }        
         return (new JsonResponse(['cities' => $data], Response::HTTP_OK))->setEncodingOptions( JSON_PRETTY_PRINT );
+    }
+
+    /**
+     * @Route("/search/{query}/{limit}/{page}", defaults={"query" = null, "page" = 0, "limit" = 50}, name="search", methods={"GET"})
+    */
+    public function search($query, $page, $limit): JsonResponse
+    {
+        $data = [];
+        if(empty($query)){
+            $RAW_QUERY = "SELECT concat(cs.id,ed.id) id, state.name state, county.name county, city.name city, ed.ed, ed.description
+                          FROM city_state cs
+                          JOIN state ON state.id = cs.state_id
+                          JOIN county ON county.id = county_id
+                          JOIN city ON city.id = cs.city_id
+                          JOIN ed_summary ed ON ed.state_id = state.id AND ed.county_id = county.id                          
+                          GROUP BY sortkey
+                          ORDER BY sortkey
+                          LIMIT :limit                          
+                          OFFSET :offset
+                          ";
+        
+            $statement = $this->em->getConnection()->prepare($RAW_QUERY);
+            // Set parameters             
+            $statement->bindValue('limit', $limit, \PDO::PARAM_INT);            
+            $statement->bindValue('offset', $page * $limit, \PDO::PARAM_INT);
+        }
+        else{
+
+            $RAW_QUERY = "SELECT concat(cs.id,ed.id) id, state.name state, county.name county, city.name city, ed.ed, ed.description
+                        FROM city_state cs
+                        JOIN state ON state.id = cs.state_id
+                        JOIN county ON county.id = county_id
+                        JOIN city ON city.id = cs.city_id
+                        JOIN ed_summary ed ON ed.state_id = state.id AND ed.county_id = county.id                          
+                        WHERE CONCAT(state.name,' ', city.name, ' ', ed.description, ' ', ed.ed) REGEXP :query
+                        GROUP BY sortkey
+                        ORDER BY sortkey
+                        LIMIT :limit                          
+                        OFFSET :offset
+                          ";
+        
+            $statement = $this->em->getConnection()->prepare($RAW_QUERY);
+            // Set parameters 
+            $statement->bindValue('query', $query, \PDO::PARAM_STR);
+            $statement->bindValue('limit', $limit, \PDO::PARAM_INT);            
+            $statement->bindValue('offset', $page * $limit, \PDO::PARAM_INT);
+            
+        }
+        $statement->execute();
+        $results = $statement->fetchAll();
+        
+
+        foreach ($results as $result) {      
+            
+            $data[] = $result;                    
+        }
+        
+                
+        return (new JsonResponse(['page'=>$page+1, 'limit'=> $limit, 'results' => $data], Response::HTTP_OK))->setEncodingOptions( JSON_PRETTY_PRINT );
     }
 
 }
