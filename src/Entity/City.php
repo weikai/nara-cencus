@@ -8,7 +8,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=CityRepository::class)
+ * @ORM\Entity(repositoryClass=CityRepository::class) 
+ * @ORM\Table(indexes={@ORM\Index(columns={"name"}, flags={"fulltext"})})
  */
 class City
 {

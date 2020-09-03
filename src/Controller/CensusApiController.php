@@ -161,53 +161,59 @@ class CensusApiController extends AbstractController
     }
 
     /**
-     * @Route("/search/{query}/{limit}/{page}", defaults={"query" = null, "page" = 0, "limit" = 50}, name="search", methods={"GET"})
+     * @Route("/search/{query}/{limit}/{page}", defaults={"query" = null, "page" = 0, "limit" = 50}, name="api_search", methods={"GET"})
     */
     public function search($query, $page, $limit): JsonResponse
     {
         $data = [];
-        if(empty($query)){
-            $RAW_QUERY = "SELECT concat(cs.id,ed.id) id, state.name state, county.name county, city.name city, ed.ed, ed.description
-                          FROM city_state cs
-                          JOIN state ON state.id = cs.state_id
-                          JOIN county ON county.id = county_id
-                          JOIN city ON city.id = cs.city_id
-                          JOIN ed_summary ed ON ed.state_id = state.id AND ed.county_id = county.id                          
-                          GROUP BY sortkey
-                          ORDER BY sortkey
-                          LIMIT :limit                          
-                          OFFSET :offset
-                          ";
-        
-            $statement = $this->em->getConnection()->prepare($RAW_QUERY);
-            // Set parameters             
-            $statement->bindValue('limit', $limit, \PDO::PARAM_INT);            
-            $statement->bindValue('offset', $page * $limit, \PDO::PARAM_INT);
-        }
-        else{
 
-            $RAW_QUERY = "SELECT concat(cs.id,ed.id) id, state.name state, county.name county, city.name city, ed.ed, ed.description
-                        FROM city_state cs
-                        JOIN state ON state.id = cs.state_id
-                        JOIN county ON county.id = county_id
-                        JOIN city ON city.id = cs.city_id
-                        JOIN ed_summary ed ON ed.state_id = state.id AND ed.county_id = county.id                          
-                        WHERE CONCAT(state.name,' ', city.name, ' ', ed.description, ' ', ed.ed) REGEXP :query
-                        GROUP BY sortkey
-                        ORDER BY sortkey
+        $dbconn=$this->em->getConnection();
+        $limit = $limit > 200 ? 200:$limit;
+        $page = $page < 1 ? 1: $page;
+        
+        
+        if(!empty($query)){
+            $rquery = "";            
+            foreach(preg_split("/[\s,\/]+/",$query) as $qword){
+                if(!empty($qword)){
+                    //$rquery .="(?=.*$qword)";
+                    $rquery = $rquery ?  "|$qword" : $qword;
+                }
+            }
+            $rquery = "($rquery)";
+            
+            
+            //var_dump($rquery);
+
+            $RAW_QUERY = "SELECT SQL_CALC_FOUND_ROWS ed.id, state.name state, county.name county, city.name city, ed.ed, ed.description
+                        FROM ed_summary ed
+                        LEFT JOIN enumeration enum ON enum.ed_id = ed.id
+                        LEFT JOIN state ON state.id = ed.state_id
+                        LEFT JOIN county ON county.id = ed.county_id
+                        LEFT JOIN city ON city.id = enum.city_id                      
+                        WHERE CONCAT(state.name,' ', ifnull(city.name,''), ' ', ed.description, ' ', ed.ed) REGEXP :query
                         LIMIT :limit                          
                         OFFSET :offset
-                          ";
+                        ";
         
-            $statement = $this->em->getConnection()->prepare($RAW_QUERY);
+            $statement = $dbconn->prepare($RAW_QUERY);
             // Set parameters 
-            $statement->bindValue('query', $query, \PDO::PARAM_STR);
+            $statement->bindValue('query', $rquery, \PDO::PARAM_STR);
             $statement->bindValue('limit', $limit, \PDO::PARAM_INT);            
-            $statement->bindValue('offset', $page * $limit, \PDO::PARAM_INT);
+            $statement->bindValue('offset', ($page - 1 ) * $limit, \PDO::PARAM_INT);
+            try{
+                $statement->execute();            
+                $count = $statement->rowCount();
+                $results = $statement->fetchAll();
+                $total = $dbconn->query('SELECT FOUND_ROWS();')->fetch(\PDO::FETCH_COLUMN);
+            }
+            catch(Exception $e){
+                $results=array();
+            }
             
         }
-        $statement->execute();
-        $results = $statement->fetchAll();
+        
+        
         
 
         foreach ($results as $result) {      
@@ -216,7 +222,7 @@ class CensusApiController extends AbstractController
         }
         
                 
-        return (new JsonResponse(['page'=>$page+1, 'limit'=> $limit, 'results' => $data], Response::HTTP_OK))->setEncodingOptions( JSON_PRETTY_PRINT );
+        return (new JsonResponse(['page'=>$page, 'limit'=> $limit, 'count'=>$count, 'total'=>$total, 'results' => $data], Response::HTTP_OK))->setEncodingOptions( JSON_PRETTY_PRINT );
     }
 
 }

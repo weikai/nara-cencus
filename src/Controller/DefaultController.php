@@ -18,11 +18,5 @@ class DefaultController extends AbstractController
          // redirects to the "homepage" route
         return $this->redirectToRoute('search_page');
     }
-    /**
-     *  @Route("/search/{reactRouting}", name="search_page", defaults={"reactRouting": null})
-    */
-    public function searchPage()
-    {
-        return $this->render('default/index.html.twig');
-    }
+    
 }
