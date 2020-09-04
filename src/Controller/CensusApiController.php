@@ -186,25 +186,9 @@ class CensusApiController extends AbstractController
                 }
             }
             $query = implode(' ', $rquery);
-                      
             
-            //var_dump($rquery);
-            /*
-            $RAW_QUERY = "SELECT SQL_CALC_FOUND_ROWS ed.id, state.name state, county.name county, city.name city, ed.ed, ed.description
-                        FROM ed_summary ed
-                        LEFT JOIN enumeration enum ON enum.ed_id = ed.id
-                        LEFT JOIN state ON state.id = ed.state_id
-                        LEFT JOIN county ON county.id = ed.county_id
-                        LEFT JOIN city ON city.id = enum.city_id                      
-                        WHERE CONCAT(state.name,' ', ifnull(city.name,''), ' ', ed.description, ' ', ed.ed) REGEXP :query
-                        LIMIT :limit                          
-                        OFFSET :offset
-                        ";
-            */
 
-
-
-            $RAW_QUERY = "SELECT SQL_CALC_FOUND_ROWS id, statename sate, countyname county, cityname city, ed, description
+            $RAW_QUERY = "SELECT SQL_CALC_FOUND_ROWS id, statename, countyname, cityname, ed, description
                         FROM census.ed_summary
                         WHERE MATCH(ed,description,statename,stateabbr,countyname,cityname)  AGAINST(:query IN BOOLEAN MODE)
                         LIMIT :limit                          
