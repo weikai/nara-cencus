@@ -40,19 +40,24 @@ class CensusApiController extends AbstractController
     }
     
     /**
-     * @Route("/get-states", name="get_all_states", methods={"GET"})
+     * @Route("/state", name="get_states", methods={"GET"})
      */
-    public function getAllStates(): JsonResponse
+    public function getStates(Request $request): JsonResponse
     {
-        $states = $this->stateRepository->findAll();
-
+        $city = $request->query->get('city');
+        $county = $request->query->get('county');
+        
+        
         $data = [];
-        foreach ($states as $state) {
-            $data[] = [
-                'id' => $state->getId(),
-                'name' => $state->getName(),
-                'abbr' => $state->getAbbr(),
-            ];
+
+        if(empty($city) && empty($county)){
+            $states = $this->stateRepository->findAll();
+            foreach ($states as $state) {
+                $data[] = [
+                    'value' => $state->getId(),
+                    'label' => $state->getName(),                
+                ];
+            }
         }
         /*
         ->createQueryBuilder('e')
@@ -173,18 +178,18 @@ class CensusApiController extends AbstractController
         
         
         if(!empty($query)){
-            $rquery = "";            
+            $rquery = array();            
             foreach(preg_split("/[\s,\/]+/",$query) as $qword){
                 if(!empty($qword)){
-                    //$rquery .="(?=.*$qword)";
-                    $rquery = $rquery ?  "|$qword" : $qword;
+                    $qword = preg_replace('/(\d+)-(\d+)/',"$1_$2", $qword);
+                    $rquery[] = "+$qword";
                 }
             }
-            $rquery = "($rquery)";
-            
+            $query = implode(' ', $rquery);
+                      
             
             //var_dump($rquery);
-
+            /*
             $RAW_QUERY = "SELECT SQL_CALC_FOUND_ROWS ed.id, state.name state, county.name county, city.name city, ed.ed, ed.description
                         FROM ed_summary ed
                         LEFT JOIN enumeration enum ON enum.ed_id = ed.id
@@ -195,17 +200,26 @@ class CensusApiController extends AbstractController
                         LIMIT :limit                          
                         OFFSET :offset
                         ";
-        
+            */
+
+
+
+            $RAW_QUERY = "SELECT SQL_CALC_FOUND_ROWS id, statename sate, countyname county, cityname city, ed, description
+                        FROM census.ed_summary
+                        WHERE MATCH(ed,description,statename,stateabbr,countyname,cityname)  AGAINST(:query IN BOOLEAN MODE)
+                        LIMIT :limit                          
+                        OFFSET :offset";
+
             $statement = $dbconn->prepare($RAW_QUERY);
             // Set parameters 
-            $statement->bindValue('query', $rquery, \PDO::PARAM_STR);
+            $statement->bindValue('query', $query, \PDO::PARAM_STR);
             $statement->bindValue('limit', $limit, \PDO::PARAM_INT);            
             $statement->bindValue('offset', ($page - 1 ) * $limit, \PDO::PARAM_INT);
             try{
                 $statement->execute();            
                 $count = $statement->rowCount();
                 $results = $statement->fetchAll();
-                $total = $dbconn->query('SELECT FOUND_ROWS();')->fetch(\PDO::FETCH_COLUMN);
+                $total = $dbconn->query('SELECT FOUND_ROWS();')->fetch(\PDO::FETCH_COLUMN); 
             }
             catch(Exception $e){
                 $results=array();
@@ -217,8 +231,8 @@ class CensusApiController extends AbstractController
         
 
         foreach ($results as $result) {      
-            
-            $data[] = $result;                    
+            $result['ed'] = str_replace('_','-',$result['ed']);
+            $data[] = $result;                                
         }
         
                 

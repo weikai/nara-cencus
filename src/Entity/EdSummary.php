@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=EdSummaryRepository::class)
- * @ORM\Table(indexes={@ORM\Index(columns={"ed","description"}, flags={"fulltext"})})
+ * @ORM\Table(indexes={@ORM\Index(columns={"ed","description","statename","stateabbr","countyname","cityname"}, flags={"fulltext"})})
  */
 class EdSummary
 {
@@ -30,11 +30,7 @@ class EdSummary
      */
     private $description;
 
-    /**
-     * @ORM\Column(type="smallint")
-     */
-    private $year;
-
+    
     /**
      * @ORM\ManyToOne(targetEntity=State::class, inversedBy="edSummaries")
      * @ORM\JoinColumn(nullable=false)
@@ -47,15 +43,42 @@ class EdSummary
      */
     private $County;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
-    private $sortkey;
-
+    
     /**
      * @ORM\OneToMany(targetEntity=Enumeration::class, mappedBy="ed")
      */
     private $enumerations;
+
+    /**
+     * @ORM\Column(type="string", length=40)
+     */
+    private $statename;
+
+    /**
+     * @ORM\Column(type="string", length=4)
+     */
+    private $stateabbr;
+
+    /**
+     * @ORM\Column(type="string", length=40)
+     */
+    private $countyname;
+
+    /**
+     * @ORM\Column(type="string", length=40, nullable=true)
+     */
+    private $cityname;
+
+    /**
+     * @ORM\Column(type="smallint")
+     */
+    private $year;
+
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    private $sortkey;
+    
 
     public function __construct()
     {
@@ -166,6 +189,54 @@ class EdSummary
                 $enumeration->setEd(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getStatename(): ?string
+    {
+        return $this->statename;
+    }
+
+    public function setStatename(string $statename): self
+    {
+        $this->statename = $statename;
+
+        return $this;
+    }
+
+    public function getCountyname(): ?string
+    {
+        return $this->countyname;
+    }
+
+    public function setCountyname(string $countyname): self
+    {
+        $this->countyname = $countyname;
+
+        return $this;
+    }
+
+    public function getCityname(): ?string
+    {
+        return $this->cityname;
+    }
+
+    public function setCityname(?string $cityname): self
+    {
+        $this->cityname = $cityname;
+
+        return $this;
+    }
+
+    public function getStateabbr(): ?string
+    {
+        return $this->stateabbr;
+    }
+
+    public function setStateabbr(string $stateabbr): self
+    {
+        $this->stateabbr = $stateabbr;
 
         return $this;
     }

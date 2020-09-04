@@ -1,9 +1,17 @@
-import React from 'react';
+import React, { createContext } from 'react';
+import Select from 'react-select';
 import ReactDOM from 'react-dom';
 import Pagination from "react-js-pagination";
 
-const censusSearchUrl = (value, page, limit) =>
-  `/api/search/${value}/${limit}/${page}`;
+const census_api = '/api';
+
+const options = [
+  { value: 'chocolate', label: 'Chocolate' },
+  { value: 'strawberry', label: 'Strawberry' },
+  { value: 'vanilla', label: 'Vanilla' }
+];
+
+
 
 class Search extends React.Component {
   constructor(props) {
@@ -19,10 +27,20 @@ class Search extends React.Component {
       },
       form:{
         searchTerm:'',
-        state:''
-      }      
+        stateOptions:[]
+      }  
     };
+   
   }
+
+  stateOptons = [];
+
+  fetchStateOptons = () => fetch(`${census_api}/state`)
+      .then(response => response.json())      
+      .then(data => {this.stateOptions = data.states})      
+      ;
+
+  
 
   onInitialSearch = (e) => {
     e.preventDefault();
@@ -32,7 +50,7 @@ class Search extends React.Component {
     }
     this.state.search = {            
         results:[],
-        page: 0,
+        page: 1,
         total:0,
         count: 0,
         limit: 50      
@@ -51,26 +69,31 @@ class Search extends React.Component {
     this.fetchRecords(this.state.form.searchTerm, pageNumber);    
   }
 
-  fetchRecords = (value, page) =>
-    fetch(censusSearchUrl(value, page, this.state.search.limit))
+  
+
+  fetchRecords = (value, page) =>  
+    fetch(`${census_api}/search/${value}/${this.state.search.limit}/${page}`)
       .then(response => response.json())      
       .then(result => this.setState({
         search: result
       }));      
 
   
+  
 
   render() {
-
+    console.log(this.stateOptons);
+    this.fetchStateOptons();
+    console.log(this.stateOptons);
     return (
-      <div className="page">
+      <div className="page">   
+        
+        {console.log('here')}     
         <div className="generalsearch">
           <form type="submit" onSubmit={this.onInitialSearch}>
             <input type="text" title="Search" onChange={this.editSearchTerm} value={this.state.form.searchTerm} />
             <button type="submit">Search</button>
-           
-
-            
+            <Select options = {this.state.form.stateOptions} />
           </form>
         </div>
         
@@ -109,3 +132,4 @@ const List = ({ list}) =>
   
 
 export default Search;
+

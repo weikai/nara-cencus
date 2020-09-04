@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20200902152418 extends AbstractMigration
+final class Version20200903174320 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -24,7 +24,7 @@ final class Version20200902152418 extends AbstractMigration
         $this->addSql('CREATE TABLE city (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(50) NOT NULL, FULLTEXT INDEX IDX_2D5B02345E237E06 (name), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE city_state (id INT AUTO_INCREMENT NOT NULL, state_id INT NOT NULL, county_id INT NOT NULL, city_id INT NOT NULL, INDEX IDX_E01975AC5D83CC1 (state_id), INDEX IDX_E01975AC85E73F45 (county_id), INDEX IDX_E01975AC8BAC62AF (city_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE county (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(40) NOT NULL, FULLTEXT INDEX IDX_58E2FF255E237E06 (name), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
-        $this->addSql('CREATE TABLE ed_summary (id INT AUTO_INCREMENT NOT NULL, state_id INT NOT NULL, county_id INT NOT NULL, ed VARCHAR(20) NOT NULL, description VARCHAR(2048) DEFAULT NULL, year SMALLINT NOT NULL, sortkey VARCHAR(20) NOT NULL, INDEX IDX_A892F9D5D83CC1 (state_id), INDEX IDX_A892F9D85E73F45 (county_id), FULLTEXT INDEX IDX_A892F9D138C285C6DE44026 (ed, description), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE ed_summary (id INT AUTO_INCREMENT NOT NULL, state_id INT NOT NULL, county_id INT NOT NULL, ed VARCHAR(20) NOT NULL, description VARCHAR(2048) DEFAULT NULL, statename VARCHAR(40) NOT NULL, stateabbr VARCHAR(4) NOT NULL, countyname VARCHAR(40) NOT NULL, cityname VARCHAR(40) DEFAULT NULL, year SMALLINT NOT NULL, sortkey VARCHAR(20) NOT NULL, INDEX IDX_A892F9D5D83CC1 (state_id), INDEX IDX_A892F9D85E73F45 (county_id), FULLTEXT INDEX IDX_A892F9D138C285C6DE4402694FA2575CA9412727EAF5D4F3E7E1D74 (ed, description, statename, stateabbr, countyname, cityname), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE enumeration (id INT AUTO_INCREMENT NOT NULL, state_id INT NOT NULL, county_id INT NOT NULL, city_id INT DEFAULT NULL, ed_id INT NOT NULL, INDEX IDX_A4F2E1835D83CC1 (state_id), INDEX IDX_A4F2E18385E73F45 (county_id), INDEX IDX_A4F2E1838BAC62AF (city_id), INDEX IDX_A4F2E183BAB47356 (ed_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE record_type (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(20) NOT NULL, label VARCHAR(20) NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE state (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(40) NOT NULL, abbr VARCHAR(2) NOT NULL, FULLTEXT INDEX IDX_A393D2FB5E237E06 (name), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
