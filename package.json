@@ -1,8 +1,8 @@
 {
     "devDependencies": {
-        "@babel/preset-react": "^7.10.4",
+        "@babel/preset-react": "^7.0.0",
         "@symfony/webpack-encore": "^0.30.0",
-        "axios": "^0.20.0",
+        "babel-preset-react": "^6.24.1",
         "core-js": "^3.0.0",
         "prop-types": "^15.7.2",
         "react": "^16.13.1",
@@ -19,12 +19,8 @@
         "build": "encore production --progress"
     },
     "dependencies": {
-        "@babel/plugin-proposal-class-properties": "^7.10.4",
-        "@babel/plugin-transform-runtime": "^7.11.0",
-        "boostrap": "^2.0.0",
-        "react-app-polyfill": "^1.0.6",
+        "@babel/plugin-transform-runtime": "^7.11.5",
         "react-js-pagination": "^3.0.3",
-        "react-router-dom": "^5.2.0",
         "react-select": "^3.1.0"
     }
 }
