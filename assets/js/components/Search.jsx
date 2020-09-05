@@ -19,6 +19,10 @@ class Search extends React.Component {
       limit: 25,
       stateSelectOptions:[],          
       selectedStateOption:'',
+      countySelectOptions:[],          
+      selectedCountyOption:'',
+      citySelectOptions:[],          
+      selectedCityOption:'',
     }
     this.getStateOptions();
   }
@@ -29,10 +33,22 @@ class Search extends React.Component {
       .then( ({states})=>this.setState({stateSelectOptions: [...states]}));    
   }
 
+  getCountyOptions = (state=null, city=null) =>{
+    fetch(`${API_ENDPOINT}/county`)
+      .then(data => data.json())
+      .then( ({counties})=>this.setState({countySelectOptions: [...counties]}));    
+  }
+
+  getCityOptions = (state=null, county=null) =>{
+    fetch(`${API_ENDPOINT}/city`)
+      .then(data => data.json())
+      .then( ({cities})=>this.setState({stateSelectOptions: [...cities]}));    
+  }
+
   onSubmit = (e) => {
     e.preventDefault();
     this.tmpSearchTerm = e.target.searchterm.value;
-    fetch(`${API_ENDPOINT}/search/${this.tmpSearchTerm}/${this.state.limit}/${this.state.page}`)
+    fetch(`${API_ENDPOINT}/search/${encodeURIComponent(this.tmpSearchTerm)}?limit=${this.state.limit}&page=${this.state.page}`)
       .then(data => data.json())
       .then(({ results, page, total }) =>
         this.setState({ results: [...results], page, total, searchTerm: this.tmpSearchTerm })
@@ -43,7 +59,7 @@ class Search extends React.Component {
   }
 
   onPaginationChange = (pageNumber) => {
-    fetch(`${API_ENDPOINT}/search/${this.state.searchTerm}/${this.state.limit}/${pageNumber}`)
+    fetch(`${API_ENDPOINT}/search/${encodeURIComponent(this.state.searchTerm)}?limit=${this.state.limit}&page=${pageNumber}`)
       .then(data => data.json())
       .then(({ results, page, total }) =>
         this.setState({ results: [...results], page, total })
@@ -62,10 +78,8 @@ class Search extends React.Component {
     return (
       <div>
         <SearchForm 
-          
-          onSubmit={this.onSubmit} 
-          stateSelectOptions={this.state.stateSelectOptions}
-          onStateSelectChange={this.onStateSelectChange}
+          parent={this}          
+          stateSelectOptions={this.state.stateSelectOptions}          
           selectedState={this.state.selectedState}
         />
         <SearchResultList list={this.state.results} />

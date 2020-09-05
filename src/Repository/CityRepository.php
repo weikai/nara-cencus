@@ -19,6 +19,28 @@ class CityRepository extends ServiceEntityRepository
         parent::__construct($registry, City::class);
     }
 
+    /**
+     * @return City[] Returns an array of City objects
+    */
+    
+    public function findCityBy($query)
+    {
+        var_dump('here');
+        $qb = $this->createQueryBuilder('c');
+        if(!empty($query)){
+            var_dump('here2');
+            $qb->innerJoin('App\Entity\CityState', 'cs', 'WITH', 'c.id = cs.city');
+            foreach($query as $key => $value){
+                $ukey = ucfirst($key);
+                $qb->innerJoin("App\Entity\\$ukey" , $key, 'WITH', "cs.$ukey = $key.id")
+                ->andWhere("$key.Name = :$key")
+                ->setParameter($key, $value);
+            }
+        }            
+        $qb->orderBy('c.Name', 'ASC');
+        return $qb->getQuery()->getResult();        
+    }
+
     // /**
     //  * @return City[] Returns an array of City objects
     //  */

@@ -31,7 +31,7 @@ class CensusImage
 
     /**
      * @ORM\ManyToOne(targetEntity=County::class, inversedBy="censusImages")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     private $County;
 

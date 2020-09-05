@@ -1,10 +1,10 @@
 import React from 'react';
 import Select from 'react-select';
 
-const SearchForm = ({ onSubmit, searchTerm, stateSelectOptions, onStateSelectChange,selectedState }) => {
+const SearchForm = ({ parent, searchTerm, selectedState }) => {
   return (
     <React.Fragment>
-      <form type="submit" className="" onSubmit={onSubmit}>
+      <form type="submit" className="" onSubmit={parent.onSubmit}>
         <div className="input-group">
           <input
             type="text"
@@ -12,16 +12,23 @@ const SearchForm = ({ onSubmit, searchTerm, stateSelectOptions, onStateSelectCha
             title="Search"
             id="searchterm"
             name="searchterm"
-            value={searchTerm}
+            value={searchTerm} //can't use parent since it changes value
             placeholder="Enter search term" />
           <button type="submit" className="btn btn-primary">Search</button>
         </div>
         <div className="input-group">
           <Select
             className="form-control"
-            value={selectedState}
-            onChange={onStateSelectChange}
-            options={stateSelectOptions}
+            value={parent.state.selectedState}
+            onChange={parent.onStateSelectChange}
+            options={parent.state.stateSelectOptions}
+          />
+
+          <Select
+            className="form-control"
+            value={parent.state.selectedState}
+            onChange={parent.onStateSelectChange}
+            options={parent.state.stateSelectOptions}
           />
         </div>
       </form>

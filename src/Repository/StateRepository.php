@@ -19,6 +19,29 @@ class StateRepository extends ServiceEntityRepository
         parent::__construct($registry, State::class);
     }
 
+    /**
+     * @return State[] Returns an array of State objects
+    */
+    
+    public function findStateBy($query)
+    {
+        $qb = $this->createQueryBuilder('s');
+        if(!empty($query)){
+            $qb->innerJoin('App\Entity\CityState', 'cs', 'WITH', 's.id = cs.state');
+            foreach($query as $key => $value){
+                $ukey = ucfirst($key);
+                $qb->innerJoin("App\Entity\\$ukey" , $key, 'WITH', "cs.$ukey = $key.id")
+                ->andWhere("$key.Name = :$key")
+                ->setParameter($key, $value);
+            }
+        }
+            
+        $qb->orderBy('s.Name', 'ASC');
+        return $qb->getQuery()->getResult();        
+    }
+    
+
+    
     // /**
     //  * @return State[] Returns an array of State objects
     //  */

@@ -40,64 +40,73 @@ class CensusApiController extends AbstractController
     }
     
     /**
-     * @Route("/state", name="get_states", methods={"GET"})
+     * @Route("/{location}", name="get_location", requirements={ "location": "state|county|city" }, methods={"GET"})
      */
-    public function getStates(Request $request): JsonResponse
+    public function getLocation(Request $request, $location): JsonResponse    
     {
-        $city = $request->query->get('city');
-        $county = $request->query->get('county');
-        
-        
-        $data = [];
-
-        if(empty($city) && empty($county)){
-            $states = $this->stateRepository->findAll();
-            foreach ($states as $state) {
-                $data[] = [
-                    'value' => $state->getId(),
-                    'label' => $state->getName(),                
-                ];
-            }
+        $query=[];   
+        $data = [];       
+        if(!is_null($request->query->get('city'))){
+            $query['city'] = $request->query->get('city');
         }
-        /*
-        ->createQueryBuilder('e')
-        ->addOrderBy('e.time', 'ASC')
-        ->getQuery()
-        ->execute();
-        */
+        if(!is_null($request->query->get('county'))){
+            $query['county'] = $request->query->get('county') . ' County';
+        }
+        if(!is_null($request->query->get('state'))){
+            $query['state'] = $request->query->get('state');
+        }
+
+        switch($location){
+            case "state":
+                unset($query['state']);
+                $results = $this->stateRepository->findStateBy($query);   
+                foreach ($results as $result) {
+                    $data[] = [
+                        'value' => $result->getAbbr(),
+                        'label' => $result->getName(),                
+                    ];
+                }
+                break;
+            case "county":
+                $statement->addSelect("county")->from('App\Entity\County','county');
+                break;
+            case "city":
+                unset($query['state']);
+                $results = $this->cityRepository->findCityBy($query);   
+                foreach ($results as $result) {
+                    $data[] = [                        
+                        'label' => $result->getName(),                
+                    ];
+                }
+                break;
+        }
+
         
-        return (new JsonResponse(['states' => $data], Response::HTTP_OK))->setEncodingOptions( JSON_PRETTY_PRINT );
+        
+    
+        
+        
+        return (new JsonResponse(['location' => $data], Response::HTTP_OK))->setEncodingOptions( JSON_PRETTY_PRINT );
     }
 
-    /**
-     * @Route("/get-state/{id}", name="get_one_state", methods={"GET"})
-     */
-    public function getOneState($id): JsonResponse
-    {
-        $state = $this->stateRepository->findOneBy(['id' => $id]);
-
-        $data = [
-            'id' => $state->getId(),
-            'name' => $state->getName(),
-            'abbr' => $state->getAbbr(),
-        ];
-
-        return (new JsonResponse(['state' => $data], Response::HTTP_OK))->setEncodingOptions( JSON_PRETTY_PRINT );
-    }
+    
 
     /**
-     * @Route("/get-cities/{id}", defaults={"id"=""}, name="get_cities", methods={"GET"})
+     * @Route("/city", name="get_cities", methods={"GET"})
      */
-    public function getCities($id): JsonResponse
+    public function getCities(Request $request): JsonResponse
     {
+        $state = $request->query->get('state');
+        $county = $request->query->get('county');
+
         $data = [];
-        if(empty($id)){
+        if(empty($state) && empty($city)){
             $cities = $this->cityRepository->findAll();
             
             foreach ($cities as $city) {
                 $data[] = [
-                    'id' => $city->getId(),
-                    'name'=> $city->getName(),
+                    'value' => $city->getId(),
+                    'label'=> $city->getName(),
                 ];
             }            
         }
@@ -166,18 +175,22 @@ class CensusApiController extends AbstractController
     }
 
     /**
-     * @Route("/search/{query}/{limit}/{page}", defaults={"query" = null, "page" = 0, "limit" = 50}, name="api_search", methods={"GET"})
+     * @Route("/search/{query}", defaults={"query" = null}, name="api_search", methods={"GET"})
     */
-    public function search($query, $page, $limit): JsonResponse
-    {
-        $data = [];
+    public function search(Request $request, $query): JsonResponse
+    {   
+        $page = $request->query->get('page');
+        $limit = $request->query->get('limit');
 
-        $dbconn=$this->em->getConnection();
-        $limit = $limit > 200 ? 200:$limit;
-        $page = $page < 1 ? 1: $page;
+        $limit = ($limit && $limit <= 200) ? $limit : 25;
+        $page = ($page && $page >= 1)? $page : 1;
+                
+        $data = [];
+        $count = $total = 0;
         
-        
+        $results=array();
         if(!empty($query)){
+            $dbconn=$this->em->getConnection();
             $rquery = array();            
             foreach(preg_split("/[\s,\/]+/",$query) as $qword){
                 if(!empty($qword)){
@@ -206,7 +219,7 @@ class CensusApiController extends AbstractController
                 $total = $dbconn->query('SELECT FOUND_ROWS();')->fetch(\PDO::FETCH_COLUMN); 
             }
             catch(Exception $e){
-                $results=array();
+                //Todo
             }
             
         }
