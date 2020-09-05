@@ -21,7 +21,7 @@ class CityState
      * @ORM\ManyToOne(targetEntity=State::class, inversedBy="cityStates")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $state;
+    private $State;
 
     /**
      * @ORM\ManyToOne(targetEntity=County::class, inversedBy="cityStates")
@@ -42,12 +42,12 @@ class CityState
 
     public function getState(): ?State
     {
-        return $this->state;
+        return $this->State;
     }
 
     public function setState(?State $state): self
     {
-        $this->state = $state;
+        $this->State = $state;
 
         return $this;
     }

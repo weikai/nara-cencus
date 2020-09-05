@@ -30,14 +30,8 @@ class CountyRepository extends ServiceEntityRepository
         if(!empty($query)){            
             $qb->innerJoin('App\Entity\CityState', 'cs', 'WITH', 'c.id = cs.County');
             foreach($query as $key => $value){                
-                if($key == 'state'){
-                    $field = 'Abbr';
-                    $ukey = 'state';
-                }
-                else{
-                    $field = 'Name';
-                    $ukey = ucfirst($key);
-                }                 
+                $field = ($key == 'state')? 'Abbr' :'Name';
+                $ukey = ucfirst($key);                                 
                 $qb->innerJoin("App\Entity\\$ukey" , $key, 'WITH', "cs.$ukey = $key.id")
                 ->andWhere("$key.$field = :$key")
                 ->setParameter($key, $value);
