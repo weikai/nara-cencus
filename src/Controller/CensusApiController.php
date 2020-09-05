@@ -46,13 +46,13 @@ class CensusApiController extends AbstractController
     {
         $query=[];   
         $data = [];       
-        if(!is_null($request->query->get('city'))){
+        if(!empty($request->query->get('city'))){
             $query['city'] = $request->query->get('city');
         }
-        if(!is_null($request->query->get('county'))){
+        if(!empty($request->query->get('county'))){
             $query['county'] = $request->query->get('county') . ' County';
         }
-        if(!is_null($request->query->get('state'))){
+        if(!empty($request->query->get('state'))){
             $query['state'] = $request->query->get('state');
         }
 

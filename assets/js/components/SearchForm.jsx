@@ -26,9 +26,16 @@ const SearchForm = ({ parent, searchTerm, selectedState }) => {
 
           <Select
             className="form-control"
-            value={parent.state.selectedState}
-            onChange={parent.onStateSelectChange}
-            options={parent.state.stateSelectOptions}
+            value={parent.state.selectedCounty}
+            onChange={parent.onCitySelectCounty}
+            options={parent.state.countySelectOptions}
+          />
+
+          <Select
+            className="form-control"
+            value={parent.state.selectedCity}
+            onChange={parent.onCitySelectChange}
+            options={parent.state.citySelectOptions}
           />
         </div>
       </form>

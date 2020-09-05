@@ -24,25 +24,32 @@ class Search extends React.Component {
       citySelectOptions:[],          
       selectedCityOption:'',
     }
+    
+  }
+
+  componentDidMount() {
     this.getStateOptions();
+    this.getCountyOptions();
+    this.getCityOptions();
   }
 
   getStateOptions = (county=null, city=null) =>{
     fetch(`${API_ENDPOINT}/state`)
       .then(data => data.json())
-      .then( ({states})=>this.setState({stateSelectOptions: [...states]}));    
+      .then( ({location})=>this.setState({stateSelectOptions: [...location]}))
+      .then('here');
   }
 
   getCountyOptions = (state=null, city=null) =>{
     fetch(`${API_ENDPOINT}/county`)
       .then(data => data.json())
-      .then( ({counties})=>this.setState({countySelectOptions: [...counties]}));    
+      .then( ({location})=>this.setState({countySelectOptions: [...location]}));    
   }
 
   getCityOptions = (state=null, county=null) =>{
     fetch(`${API_ENDPOINT}/city`)
       .then(data => data.json())
-      .then( ({cities})=>this.setState({stateSelectOptions: [...cities]}));    
+      .then( ({location})=>this.setState({citySelectOptions: [...location]}));    
   }
 
   onSubmit = (e) => {
