@@ -28,7 +28,7 @@ class StateRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('s');
         if(!empty($query)){
             $qb->innerJoin('App\Entity\CityState', 'cs', 'WITH', 's.id = cs.state');
-            foreach($query as $key => $value){
+            foreach($query as $key => $value){                
                 $ukey = ucfirst($key);
                 $qb->innerJoin("App\Entity\\$ukey" , $key, 'WITH', "cs.$ukey = $key.id")
                 ->andWhere("$key.Name = :$key")

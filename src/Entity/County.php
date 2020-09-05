@@ -28,7 +28,7 @@ class County
     /**
      * @ORM\Column(type="string", length=40)
      */
-    private $name;
+    private $Name;
 
     /**
      * @ORM\OneToMany(targetEntity=EdSummary::class, mappedBy="County")
@@ -91,12 +91,12 @@ class County
 
     public function getName(): ?string
     {
-        return $this->name;
+        return $this->Name;
     }
 
     public function setName(string $name): self
     {
-        $this->name = $name;
+        $this->Name = $name;
 
         return $this;
     }

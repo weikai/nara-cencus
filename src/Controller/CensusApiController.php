@@ -35,7 +35,7 @@ class CensusApiController extends AbstractController
         $this->em = $entityManager;
         $this->stateRepository = $entityManager->getRepository(State::class);
         $this->cityRepository = $entityManager->getRepository(City::class);
-        $this->cityStateRepository = $entityManager->getRepository(CityState::class);
+        //$this->cityStateRepository = $entityManager->getRepository(CityState::class);
         $this->countyRepository = $entityManager->getRepository(County::class);
     }
     
@@ -68,7 +68,14 @@ class CensusApiController extends AbstractController
                 }
                 break;
             case "county":
-                $statement->addSelect("county")->from('App\Entity\County','county');
+                unset($query['county']);
+                $results = $this->countyRepository->findCountyBy($query);   
+                foreach ($results as $result) {                    
+                    $data[] = [                        
+                        'label' => $result->getName(),                
+                    ];
+                }
+                
                 break;
             case "city":
                 unset($query['state']);
