@@ -25,12 +25,12 @@ class CityRepository extends ServiceEntityRepository
     
     public function findCityBy($query)
     {
-        
+           
         $qb = $this->createQueryBuilder('c');
         if(!empty($query)){            
             $qb->innerJoin('App\Entity\CityState', 'cs', 'WITH', 'c.id = cs.City');
             foreach($query as $key => $value){
-                $field = ($key == 'state')? 'Abbr' :'Name';
+                $field = ($key == 'state')? 'Abbr' :'Name';                
                 $ukey = ucfirst($key);
                 $qb->innerJoin("App\Entity\\$ukey" , $key, 'WITH', "cs.$ukey = $key.id")
                 ->andWhere("$key.$field = :$key")

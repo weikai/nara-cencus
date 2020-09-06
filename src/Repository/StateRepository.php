@@ -24,15 +24,24 @@ class StateRepository extends ServiceEntityRepository
     */
     
     public function findStateBy($query)
-    {
+    {        
         $qb = $this->createQueryBuilder('s');
-        if(!empty($query)){
-            $qb->innerJoin('App\Entity\CityState', 'cs', 'WITH', 's.id = cs.state');
-            foreach($query as $key => $value){                
+        if(!empty($query)){            
+            $query =  array_merge(array(),$query);
+            if(!empty($query['state'])){                
+                $qb->where("s.Abbr = :abbr")
+                ->setParameter('abbr', $query['state']);
+                unset($query['state']);
+            }
+        }
+        if(!empty($query)){                        
+            $qb->innerJoin('App\Entity\CityState', 'cs', 'WITH', 's.id = cs.State');
+            foreach($query as $key => $value){                                
                 $ukey = ucfirst($key);
                 $qb->innerJoin("App\Entity\\$ukey" , $key, 'WITH', "cs.$ukey = $key.id")
                 ->andWhere("$key.Name = :$key")
                 ->setParameter($key, $value);
+            
             }
         }
             

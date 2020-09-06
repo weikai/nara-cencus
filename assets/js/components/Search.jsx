@@ -16,50 +16,60 @@ class Search extends React.Component {
       page: 1,
       total: 0,
       count: 0,
-      limit: 25,
-      stateSelectOptions:[],          
-      selectedStateOption:'',
-      countySelectOptions:[],          
-      selectedCountyOption:'',
-      citySelectOptions:[],          
-      selectedCityOption:'',
+      limit: 25,      
+      formSelectOptions: {
+        'states': [],
+        'counties': [],
+        'cities': []
+      },
+      formSelectedOptions:{
+        'selectedState': '',
+        'selectedCounty': '',
+        'selectedCity': '',
+      },
+    
     }
+
+  }
+
+  componentDidMount() {    
+    this.getFormSelectOptions();    
+    //this.setState({formSelectedOptions:{...this.formSelectedOptions,selectedState:'MD'}});
     
   }
 
-  componentDidMount() {
-    this.getStateOptions();
-    this.getCountyOptions();
-    this.getCityOptions();
-  }
-
-  getStateOptions = (county=null, city=null) =>{
-    fetch(`${API_ENDPOINT}/state`)
+  getFormSelectOptions = () => {
+    fetch(`${API_ENDPOINT}/location`)
       .then(data => data.json())
-      .then( ({location})=>this.setState({stateSelectOptions: [...location]}))
-      .then('here');
+      .then( (data)=>{
+        console.log('here');
+        console.log(data);
+        this.setState({formSelectOptions:data});
+      });      
   }
 
-  getCountyOptions = (state=null, city=null) =>{
+  getCountyOptions = (state = null, city = null) => {
     fetch(`${API_ENDPOINT}/county`)
       .then(data => data.json())
-      .then( ({location})=>this.setState({countySelectOptions: [...location]}));    
+      .then(({ location }) => this.setState({ countySelectOptions: [...location] }));
   }
 
-  getCityOptions = (state=null, county=null) =>{
+  getCityOptions = (state = null, county = null) => {
     fetch(`${API_ENDPOINT}/city`)
       .then(data => data.json())
-      .then( ({location})=>this.setState({citySelectOptions: [...location]}));    
+      .then(({ location }) => this.setState({ citySelectOptions: [...location] }));
   }
 
   onSubmit = (e) => {
     e.preventDefault();
-    this.tmpSearchTerm = e.target.searchterm.value;
-    fetch(`${API_ENDPOINT}/search/${encodeURIComponent(this.tmpSearchTerm)}?limit=${this.state.limit}&page=${this.state.page}`)
+    let tmpSearchTerm = e.target.searchterm.value;
+    fetch(`${API_ENDPOINT}/search/${encodeURIComponent(tmpSearchTerm)}?limit=${this.state.limit}&page=${this.state.page}`)
       .then(data => data.json())
       .then(({ results, page, total }) =>
-        this.setState({ results: [...results], page, total, searchTerm: this.tmpSearchTerm })
-      );
+        this.setState({ results: [...results], page, total, searchTerm: tmpSearchTerm })
+      ).catch(error => {
+        console.log(error);
+      });
 
 
 
@@ -73,21 +83,45 @@ class Search extends React.Component {
       );
   }
 
-  
-  onStateSelectChange = selectedStateOption =>{    
-    console.log(selectedStateOption);
-    this.setState({selectedStateOption});
+
+  onSelectOptionChange = (stateSelected,value) => {   
+    console.log(stateSelected);    
+    switch(stateSelected){
+      case 'state':
+        this.setState({formSelectedOptions:{...this.formSelectedOptions,selectedState:value}}); 
+        break;
+      case 'county':
+        this.setState({formSelectedOptions:{...this.formSelectedOptions,selectedCounty:value}}); 
+        break;
+      case 'city':
+        this.setState({formSelectedOptions:{...this.formSelectedOptions,selectedCity:value}}); 
+        break;
+    }
+       
+    /*
+    fetch(`${API_ENDPOINT}/location?state=${selectedOpts.selectedState}&county=${selectedOpts.selectedCounty}&city=${selectedOpts.selectedCity}`)
+    .then(data => data.json())
+    .then( (data)=>this.setState({formSelectOptions:data, formSelectedOptions:selectedOpts}))
+    .catch(error => {
+        console.log(error);
+    });
+    */
+    
   }
-  
+
  
+
+
   render() {
-    console.log(API_ENDPOINT);
+    console.log('test2',this.state);
+    //console.log(API_ENDPOINT);
     return (
       <div>
-        <SearchForm 
+        <SearchForm
           parent={this}          
-          stateSelectOptions={this.state.stateSelectOptions}          
-          selectedState={this.state.selectedState}
+          selectedOptions={this.state.formSelectedOptions} 
+          
+          
         />
         <SearchResultList list={this.state.results} />
         {

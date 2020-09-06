@@ -40,10 +40,11 @@ class CensusApiController extends AbstractController
     }
     
     /**
-     * @Route("/{location}", name="get_location", requirements={ "location": "state|county|city" }, methods={"GET"})
+     * @Route("/{location}", name="get_location", requirements={ "location": "location|state|county|city" }, methods={"GET"})
      */
     public function getLocation(Request $request, $location): JsonResponse    
     {
+        
         $query=[];   
         $data = [];       
         if(!empty($request->query->get('city'))){
@@ -56,36 +57,45 @@ class CensusApiController extends AbstractController
             $query['state'] = $request->query->get('state');
         }
 
-        switch($location){
-            case "state":
-                unset($query['state']);
-                $results = $this->stateRepository->findStateBy($query);   
-                foreach ($results as $result) {
-                    $data[] = [
-                        'value' => $result->getAbbr(),
-                        'label' => $result->getName(),                
-                    ];
-                }
-                break;
-            case "county":
-                unset($query['county']);
-                $results = $this->countyRepository->findCountyBy($query);   
-                foreach ($results as $result) {                    
-                    $data[] = [                        
-                        'label' => $result->getName(),                
-                    ];
-                }
-                
-                break;
-            case "city":
-                unset($query['state']);
-                $results = $this->cityRepository->findCityBy($query);   
-                foreach ($results as $result) {
-                    $data[] = [                        
-                        'label' => $result->getName(),                
-                    ];
-                }
-                break;
+        $states = $counties = $cities = [];
+
+        if($location == 'state' || $location == 'location'){
+            
+            $results = $this->stateRepository->findStateBy($query);   
+            foreach ($results as $result) {
+                $states[] = [
+                    'value' => $result->getAbbr(),
+                    'label' => $result->getName(),                
+                ];
+            }
+            if(!empty($states)){
+                $data['states'] = $states;
+            }
+        }
+        if($location == 'county' || $location == 'location'){  
+            
+            $results = $this->countyRepository->findCountyBy($query);   
+            foreach ($results as $result) {                    
+                $counties[] = [  
+                    'value' => $result->getName(),
+                    'label' => $result->getName(),                
+                ];
+            }
+            if(!empty($counties)){
+                $data['counties'] = $counties;
+            }
+        }
+        if($location == 'city' || $location == 'location'){    
+            $results = $this->cityRepository->findCityBy($query);   
+            foreach ($results as $result) {
+                $cities[] = [    
+                    'value' => $result->getName(),
+                    'label' => $result->getName(),                
+                ];
+            }
+            if(!empty($cities)){
+                $data['cities'] = $cities;        
+            }
         }
 
         
@@ -93,7 +103,7 @@ class CensusApiController extends AbstractController
     
         
         
-        return (new JsonResponse(['location' => $data], Response::HTTP_OK))->setEncodingOptions( JSON_PRETTY_PRINT );
+        return (new JsonResponse($data, Response::HTTP_OK))->setEncodingOptions( JSON_PRETTY_PRINT );
     }
 
     
