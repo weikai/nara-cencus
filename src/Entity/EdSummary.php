@@ -41,7 +41,7 @@ class EdSummary
      * @ORM\ManyToOne(targetEntity=County::class, inversedBy="edSummaries")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $County;
+    private $county;
 
     
     /**
@@ -140,12 +140,12 @@ class EdSummary
 
     public function getCounty(): ?County
     {
-        return $this->County;
+        return $this->county;
     }
 
-    public function setCounty(?County $County): self
+    public function setCounty(?County $county): self
     {
-        $this->County = $County;
+        $this->county = $county;
 
         return $this;
     }

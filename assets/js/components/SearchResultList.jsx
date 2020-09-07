@@ -6,7 +6,7 @@ const SearchResultList = ({ list }) =>
     {
       list.map((item, i) =>
         <div className="list-row" key={i}>
-          <a href={item.url}>{item.statename} >> {item.countyname} >> {item.ed}</a>
+          <a href={item.url}>{item.state_name} >> {item.county} >> {item.ed}</a>
         </div>
       )
     }

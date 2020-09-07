@@ -19,14 +19,16 @@ const SearchForm = ({ parent, searchTerm, selectedOptions}) => {
         <div className="input-group">          
          
           <Select
-            className="form-control"            
-            value={selectedOptions.selectedState}
+            className="form-control"          
+            filterOption={false}  
+            value={selectedOptions.selectedState}                       
             onChange={parent.onSelectOptionChange.bind(this,'state')}
             options={parent.state.formSelectOptions.states}
           />
 
           <Select
             className="form-control"            
+            filterOption={false}
             value={selectedOptions.selectedCounty}
             onChange={parent.onSelectOptionChange.bind(this,'county')}
             options={parent.state.formSelectOptions.counties}
@@ -34,10 +36,20 @@ const SearchForm = ({ parent, searchTerm, selectedOptions}) => {
 
           <Select
             className="form-control"            
-            value={selectedOptions.selectedCities}
+            filterOption={false}
+            value={selectedOptions.selectedCity}
             onChange={parent.onSelectOptionChange.bind(this,'city')}
             options={parent.state.formSelectOptions.cities}
           />
+
+          <input
+            type="text"
+            className="form-control mr-sm-2"
+            title="Enumeration Districts"
+            id="searched"
+            name="ed"
+            value={searchTerm} //can't use parent since it changes value
+            placeholder="Enter enumeration district number" />
           
           
         </div>

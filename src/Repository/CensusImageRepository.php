@@ -19,6 +19,33 @@ class CensusImageRepository extends ServiceEntityRepository
         parent::__construct($registry, CensusImage::class);
     }
 
+    /**
+    * @return CensusImage[] Returns an array of CensusImage objects
+    */
+    
+    public function findCensusImageBy()
+    {
+        return $this->createQueryBuilder('img')
+            //->andWhere('m.exampleField = :val')
+            //->setParameter('val', $value)
+            ->orderBy('img.id', 'ASC')
+            ->setMaxResults(10)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    /*
+    SELECT state.name state, county.name county, city.name city, ed.ed, cimg.filename
+FROM census_image cimg
+LEFT JOIN enumeration enumer ON cimg.enum_id = enumer.id
+LEFT JOIN ed_summary ed ON enumer.ed_id = ed.id
+LEFT JOIN state ON state.id = cimg.state_id
+LEFT JOIN county ON county.id = cimg.county_id
+LEFT JOIN city ON city.id = cimg.city_id
+WHERE ed.ed ='3_1' AND state.abbr='AL'
+*/
+
     // /**
     //  * @return CensusImage[] Returns an array of CensusImage objects
     //  */
