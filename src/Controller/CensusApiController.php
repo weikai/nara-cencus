@@ -57,7 +57,9 @@ class CensusApiController extends AbstractController
 
         if($location == 'state' || $location == 'location'){
             $stateRepository = $this->entityManager->getRepository(State::class);
-            $results = $stateRepository->findStateBy($query);   
+            $squery = array_merge(array(),$query);
+            unset($squery['state']);
+            $results = $stateRepository->findStateBy($squery);   
             foreach ($results as $result) {
                 $state[] = [
                     'abbr' => $result->getAbbr(),
@@ -70,9 +72,10 @@ class CensusApiController extends AbstractController
         }
         if($location == 'county' || $location == 'location'){  
             
-        
+            $cquery = array_merge(array(),$query);
+            unset($cquery['county']);
             $countyRepository = $this->entityManager->getRepository(County::class);
-            $results = $countyRepository->findCountyBy($query);   
+            $results = $countyRepository->findCountyBy($cquery);   
             foreach ($results as $result) {                    
                 $county[] = $result->getName();
             }
@@ -81,8 +84,10 @@ class CensusApiController extends AbstractController
             }
         }
         if($location == 'city' || $location == 'location'){    
+            $cquery = array_merge(array(),$query);
+            unset($cquery['city']);
             $cityRepository = $this->entityManager->getRepository(City::class);        
-            $results = $cityRepository->findCityBy($query);   
+            $results = $cityRepository->findCityBy($cquery);   
             foreach ($results as $result) {
                 $city[] = $result->getName();
             }
@@ -132,7 +137,7 @@ class CensusApiController extends AbstractController
             $params['searchterm'] = implode(' ', $rquery);            
         }   
         if(!empty($searchterm) || !empty($params['query'])){
-            $edSummaryRepository = $entityManager->getRepository(EdSummary::class);
+            $edSummaryRepository = $this->entityManager->getRepository(EdSummary::class);
             $paginator = $edSummaryRepository->findEdSummaryBy($params);  
             $totalItems = count($paginator);
             $total = count($paginator);

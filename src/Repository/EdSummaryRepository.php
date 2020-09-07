@@ -49,7 +49,7 @@ class EdSummaryRepository extends ServiceEntityRepository
             ->setParameter($key, $value);
         }
         
-        $queryBuilder->orderBy('e.ed', 'ASC');
+        $queryBuilder->orderBy('e.sortkey', 'ASC');
         
         $query = $queryBuilder->getQuery();//->getResult();
         // load doctrine Paginator
