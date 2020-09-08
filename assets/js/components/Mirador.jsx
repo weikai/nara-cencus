@@ -1,33 +1,39 @@
 import ReactDOM from "react-dom";
 import React, { Component } from "react";
-import mirador from "mirador";
 
 class Mirador extends Component {
-  constructor(props) {
-    super(props);
-    this.miradorInstance = null;
-  }
-  componentDidMount() {
-    const { config, plugins } = this.props;
-    this.miradorInstance = mirador.viewer(config, plugins);
-    // Example of subscribing to state
-    this.miradorInstance.store.subscribe(() => {
-      let state = this.miradorInstance.store.getState();
-      console.log(state.windows);
-    });
-    // Hacky example of waiting a specified time to add a window... Don't do this for real
-    setTimeout(() => {
-      this.miradorInstance.store.dispatch(
-        this.miradorInstance.actions.addWindow({
-          manifestId: "https://purl.stanford.edu/bk785mr1006/iiif/manifest"
-        })
-      );
-    }, 5000);
-  }
-  render() {
-    const { config } = this.props;
-    return <div id={config.id} />;
-  }
+    constructor(props) {
+        super(props);
+
+
+    }
+
+    shouldComponentUpdate(){
+        return false;
+    }
+
+    componentDidMount() {
+        /*
+        this.myMiradorInstance = Mirador({
+            id: 'viewer', //this.refs.viewer,
+            layout: "1x1",
+            buildPath: "mirador/",
+            data: [
+              { manifestUri: "https://iiif.lib.harvard.edu/manifests/drs:48309543", location: "Harvard University"}
+            ],
+            windowObjects: [],
+            annotationEndpoint: {
+              name:"Local Storage",
+              module: "LocalStorageEndpoint" }
+          });
+   
+        */         
+
+    }
+
+    render() {
+        return <div id='viewer' ref='viewer'>Mirador</div>;
+    }
 }
 
 export default Mirador;
