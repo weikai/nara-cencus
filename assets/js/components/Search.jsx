@@ -6,7 +6,8 @@ import PropTypes from 'prop-types';
 
 import SearchForm from './SearchForm';
 import SearchResultList from './SearchResultList';
-
+import BoostrapModal from './BootstrapModal';
+import Button from 'react-bootstrap/Button';
 
 
 const API_ENDPOINT = '/api';
@@ -52,6 +53,7 @@ class Search extends React.Component {
         'selectedCity': { 'value': this.urlParams.get('city'), 'label': this.urlParams.get('city')?this.urlParams.get('city'):'All' },
       },
       ed:this.urlParams.get('ed'),
+      showModal:false,
       
     }
 
@@ -83,6 +85,7 @@ class Search extends React.Component {
   }
 
   onOpenModal = () => {
+    console.log('here open modal');
     this.setState({ showModal: true });
   }
   
@@ -295,8 +298,17 @@ class Search extends React.Component {
           parent={this}          
           selectedOptions={this.state.formSelectedOptions}
         />
+                  
+        <BoostrapModal
+          parent={this}
+          showModal={this.state.showModal}
+        />
 
-        { <SearchResultList list={this.state.results} />}
+        <SearchResultList 
+          parent={this}
+          list={this.state.results} 
+          
+        />
 
        
         {

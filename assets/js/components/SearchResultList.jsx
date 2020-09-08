@@ -1,7 +1,7 @@
 import React from 'react';
 import Select from 'react-select';
 
-const SearchResultList = ({ list }) =>
+const SearchResultList = ({ parent, list }) =>
   <div>    
     {
       list.length > 0 && <ul className="rows record-list">
@@ -11,7 +11,7 @@ const SearchResultList = ({ list }) =>
               <div className='desc'>
                 {item.description}
               </div>
-              <a href={item.url}>{item.state_name} >> {item.county} >> ED {item.ed}</a>          
+              <a href="#" onClick={parent.onOpenModal}>{item.state_name} >> {item.county} >> ED {item.ed}</a>          
             </li>)
         }
     </ul>
