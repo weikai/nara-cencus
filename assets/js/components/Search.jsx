@@ -8,6 +8,7 @@ import SearchForm from './SearchForm';
 import SearchResultList from './SearchResultList';
 import BoostrapModal from './BootstrapModal';
 import Button from 'react-bootstrap/Button';
+import Mirador from './Mirador';
 
 
 const API_ENDPOINT = '/api';
@@ -309,6 +310,8 @@ class Search extends React.Component {
           list={this.state.results} 
           
         />
+
+        <Mirador config={{ id: "mirador" }} plugins={[]} />
 
        
         {
