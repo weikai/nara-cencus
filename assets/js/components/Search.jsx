@@ -6,9 +6,9 @@ import PropTypes from 'prop-types';
 
 import SearchForm from './SearchForm';
 import SearchResultList from './SearchResultList';
-import BoostrapModal from './BootstrapModal';
+import BootStrapModal from './BootStrapModal';
 import Button from 'react-bootstrap/Button';
-import Mirador from './Mirador';
+
 
 
 const API_ENDPOINT = '/api';
@@ -300,7 +300,7 @@ class Search extends React.Component {
           selectedOptions={this.state.formSelectedOptions}
         />
                   
-        <BoostrapModal
+        <BootStrapModal
           parent={this}
           showModal={this.state.showModal}
         />
@@ -311,7 +311,7 @@ class Search extends React.Component {
           
         />
 
-        <Mirador config={{ id: "mirador" }} plugins={[]} />
+        
 
        
         {
