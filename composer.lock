@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c4ea9cfebb21ac6671ad1f39f2ff1592",
+    "content-hash": "b6966e7247065fd7de7d470c9ec7ecc6",
     "packages": [
         {
             "name": "composer/package-versions-deprecated",
@@ -7467,6 +7467,33 @@
                 "validate"
             ],
             "time": "2020-07-08T17:02:28+00:00"
+        },
+        {
+            "name": "yale-web-technologies/iiif-manifest-generator",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/yale-web-technologies/IIIF-Manifest-Generator.git",
+                "reference": "4541b40248d061bc12bf407bc231b0c981496f6b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/yale-web-technologies/IIIF-Manifest-Generator/zipball/4541b40248d061bc12bf407bc231b0c981496f6b",
+                "reference": "4541b40248d061bc12bf407bc231b0c981496f6b",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "IIIF\\": "src/IIIF/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0"
+            ],
+            "description": "This is a IIIF Manifest Generator written in PHP. It implements the IIIF API Specification. Currently this only supports the Presentation API.",
+            "time": "2018-04-30T16:27:10+00:00"
         }
     ],
     "packages-dev": [
@@ -8062,7 +8089,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "yale-web-technologies/iiif-manifest-generator": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

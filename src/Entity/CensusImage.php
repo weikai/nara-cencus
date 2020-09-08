@@ -27,18 +27,18 @@ class CensusImage
      * @ORM\ManyToOne(targetEntity=State::class, inversedBy="censusImages")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $State;
+    private $state;
 
     /**
      * @ORM\ManyToOne(targetEntity=County::class, inversedBy="censusImages")
      * @ORM\JoinColumn(nullable=true)
      */
-    private $County;
+    private $county;
 
     /**
      * @ORM\ManyToOne(targetEntity=City::class, inversedBy="censusImages")
      */
-    private $City;
+    private $city;
 
     /**
      * @ORM\ManyToOne(targetEntity=Enumeration::class, inversedBy="censusImages")
@@ -89,24 +89,24 @@ class CensusImage
 
     public function getState(): ?State
     {
-        return $this->State;
+        return $this->state;
     }
 
     public function setState(?State $State): self
     {
-        $this->State = $State;
+        $this->state = $State;
 
         return $this;
     }
 
     public function getCounty(): ?County
     {
-        return $this->County;
+        return $this->county;
     }
 
     public function setCounty(?County $County): self
     {
-        $this->County = $County;
+        $this->county = $County;
 
         return $this;
     }
@@ -118,7 +118,7 @@ class CensusImage
 
     public function setCity(?City $City): self
     {
-        $this->City = $City;
+        $this->city = $City;
 
         return $this;
     }

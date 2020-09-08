@@ -32,7 +32,7 @@ class EdSummaryRepository extends ServiceEntityRepository
         $offset = $limit * ($page - 1);
         $queries = $params['query'];
 
-        $alterFieldNameList=array('state','county','city');
+        
 
         $queryBuilder = $this->createQueryBuilder('e');
             //->andWhere('e.exampleField = :val')
@@ -42,11 +42,9 @@ class EdSummaryRepository extends ServiceEntityRepository
             ->setParameter('searchterm', $params['searchterm']);
         }
         foreach($queries as $key=>$value){
-            if(in_array($key,$alterFieldNameList)){
-                $key .='name';
-            }            
-            $queryBuilder->andWhere("e.$key = :$key")
-            ->setParameter($key, $value);
+            $field = "e.$key";
+            $queryBuilder->andWhere("$field = :$key")
+            ->setParameter($key, $value);            
         }
         
         $queryBuilder->orderBy('e.sortkey', 'ASC');

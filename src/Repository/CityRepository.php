@@ -30,6 +30,7 @@ class CityRepository extends ServiceEntityRepository
         if(!empty($query)){            
             $qb->innerJoin('App\Entity\CityState', 'cs', 'WITH', 'c.id = cs.City');
             foreach($query as $key => $value){
+                // change field name to Abbr if it's state and the others to Name
                 $field = ($key == 'state')? 'Abbr' :'Name';                
                 $ukey = ucfirst($key);
                 $qb->innerJoin("App\Entity\\$ukey" , $key, 'WITH', "cs.$ukey = $key.id")

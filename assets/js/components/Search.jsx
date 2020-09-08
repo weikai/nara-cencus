@@ -35,7 +35,7 @@ const QUERY_PATH = (params) => {
 class Search extends React.Component {
   constructor(props) {
     super(props)
-    console.log(this.props.location);
+    
     this.urlParams = new URLSearchParams(this.props.location.search);
     this.state = {
       searchTerm: this.getSearchTermFromUrl(),      
@@ -70,8 +70,7 @@ class Search extends React.Component {
     this.getFormSelectOptions();   
   
     const {selectedState, selectedScounty, selectedCity}  = this.state.formSelectedOptions;
-    console.log('dimount');
-    console.log(this.state);
+    //fetch data base url URL query
     if(! this.isEmptyform()){      
       this.fetchSearchResults({
         size:this.state.size,
@@ -85,18 +84,19 @@ class Search extends React.Component {
     }
   }
 
-  onOpenModal = () => {
-    console.log('here open modal');
+  //Open viewer modal
+  onOpenModal = () => {    
     this.setState({ showModal: true });
   }
   
+  //Close viewer modal
   onCloseModal = () => {
     this.setState({ showModal: false });
   }
-
+  //check to see if form is empty
   isEmptyform = () =>{
     const {selectedState, selectedCounty, selectedCity}  = this.state.formSelectedOptions;
-    if(this.state.searchTerm||this.state.ed||selectedState.value){
+    if(this.state.searchTerm||this.state.ed||selectedState.value||selectedCounty||selectedCity){
       console.log('no empty');      
       return false;
     }
@@ -108,8 +108,7 @@ class Search extends React.Component {
 
   getFormSelectOptions = (formSelectedOptions = this.state.formSelectedOptions) => {
     const { selectedState, selectedCounty, selectedCity } = formSelectedOptions;
-    
-    console.log(formSelectedOptions);    
+         
     fetch(API_URL('location',{
       state:selectedState.value ? selectedState.value : '',
       county:selectedCounty.value ? selectedCounty.value : '',
@@ -117,7 +116,7 @@ class Search extends React.Component {
     }))
       .then(data => data.json())
       .then((data) => {
-        this.setState(this.convert_location_data(data));
+        this.setState(this.processLocationData(data));
       }).catch(error => {
         console.log(error);
       });
@@ -133,7 +132,7 @@ class Search extends React.Component {
     
     const { selectedState, selectedCounty, selectedCity } = this.state.formSelectedOptions;
     let tmpSearchTerm = e.target.searchterm.value;
-    console.log('etarget', e.target.ed.value);
+    
     let edNumber = e.target.ed.value;
     let query = {
       size:this.state.size,
@@ -149,6 +148,7 @@ class Search extends React.Component {
   }  
   onFormReset = (e) =>{
     this.urlParams = new URLSearchParams(window.location.search);
+    // change url base on form value
     window.history.pushState(null, null, '/search');
     let emptyStates = {
       searchTerm: '',      
@@ -167,6 +167,8 @@ class Search extends React.Component {
     this.getFormSelectOptions(emptyStates.formSelectedOptions); 
     
   }
+
+  //function to fetch data
   fetchSearchResults = (query) => {
     this.runSearch = true;
     fetch(API_URL('search',query))
@@ -180,8 +182,7 @@ class Search extends React.Component {
 
   
 
-  onPaginationChange = (page) => {
-    console.log(this.state);
+  onPaginationChange = (page) => {    
     const {searchTerm, formSelectedOptions, ed,size  } = this.state;
     
     fetch(API_URL('search',{
@@ -232,13 +233,12 @@ class Search extends React.Component {
   }
 
 
-  convert_location_data = (data) => {
+  processLocationData = (data) => {
     let state = [];
     let county = [];
     let city = [];
     let formOptions = {};
-    console.log('*** here');
-
+    
     const {selectedState, selectedCounty, selectedcity} = this.state.formSelectedOptions;
     if (data.state) {
       state = data.state.map((item) => {
@@ -264,7 +264,7 @@ class Search extends React.Component {
     data = { states: state, counties: county, cities: city };
     
     let formSelectedOptions = {};
-    console.log('debug');
+    
     
     if(! selectedState.label && selectedState.value){
       formSelectedOptions.selectedState = {
@@ -272,16 +272,7 @@ class Search extends React.Component {
         'label': state.map( item=>{return item.value.toLowerCase() === selectedState.value.toLowerCase() ? item.label: ''}).join('')
       }
     }    
-    console.log(formSelectedOptions);
     
-    /*
-    if(! selectedCounty.label && selectedCounty.value){
-      formSelectedOptions.selectedState = {
-        'value': selectedState.value,
-        'label': state.map( item=>{return item.value.toLowerCase() === selectedState.value.toLowerCase() ? item.label: ''}).join('')
-      }
-    }
-    */
     data = {
       formSelectOptions:data,
       formSelectedOptions: {...this.state.formSelectedOptions, ...formSelectedOptions}
@@ -310,10 +301,7 @@ class Search extends React.Component {
           list={this.state.results} 
           
         />
-
-        
-
-       
+               
         {
           parseInt(this.state.total) > parseInt(this.state.size) &&
           <Pagination

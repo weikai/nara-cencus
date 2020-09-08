@@ -549,5 +549,8 @@
     },
     "webmozart/assert": {
         "version": "1.9.1"
+    },
+    "yale-web-technologies/iiif-manifest-generator": {
+        "version": "dev-master"
     }
 }

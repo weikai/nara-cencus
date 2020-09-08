@@ -18,6 +18,10 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use Symfony\Component\Dotenv\Dotenv;
+use IIIF\PresentationAPI\Resources\Manifest;
+use IIIF\PresentationAPI\Resources\Sequence;
+use IIIF\PresentationAPI\Resources\Canvas;
 
 /**
  * Class CensusApiController
@@ -41,18 +45,10 @@ class CensusApiController extends AbstractController
     public function getLocation(Request $request, $location): JsonResponse    
     {
         
-        $query=[];   
-        $data = [];       
-        if(!empty($request->query->get('city'))){
-            $query['city'] = $request->query->get('city');
-        }
-        if(!empty($request->query->get('county'))){
-            $query['county'] = $request->query->get('county') . ' County';
-        }
-        if(!empty($request->query->get('state'))){
-            $query['state'] = $request->query->get('state');
-        }
-
+        
+        $data = [];               
+        $params=$this->getQuery($request, array('state','county','city'));
+        $query = $params['query'];
         $state = $county = $city = [];
 
         if($location == 'state' || $location == 'location'){
@@ -105,25 +101,108 @@ class CensusApiController extends AbstractController
     */
     public function manifest(Request $request): JsonResponse
     {
+        
+        
+
+        $query=[];   
+        $data = [];       
+        $images=[];
+        $params=$this->getQuery($request, array('state','county','city','ed'));
+
         $censusImageRepository = $this->entityManager->getRepository(CensusImage::class);
-        $results = $censusImageRepository->findCensusImageBy();   
-        $data=[];
+        $results = $censusImageRepository->findCensusImageBy($params);   
+
+
+
+        $manifest = new Manifest(true);
+        $manifest->setID("http://example.org/iiif/book1/manifest");
+            
+
+        $thumbnail = new \IIIF\PresentationAPI\Properties\Thumbnail();
+        $manifest->addThumbnail($thumbnail);
+        
+        
+        
+
+        $sequence = new Sequence();
+        $manifest->addSequence($sequence);
+        $sequence->setID("http://example.org/iiif/book1/sequence/normal");
+        //$sequence->addLabel("Current Page Order");
+        $sequence->addLabel("Normal Sequence", "en");
+      
+        
+        $i=0;
         foreach ($results as $result) {
+            $i++;
+            $imgpath=$_ENV['CENSUS_IIIF_ENDPOINT'] . $_ENV['PREFIX1940'] . '%2F' . 
+            "{$result['Abbr']}%2Fm-t0627" . 
+             "-{$result['rollnum']}%2F" . str_replace('m-t1224','m-t0627',$result['filename']);
+            
+             //set manifest thumbnail image to be the first one in the ED list
+            if($i == 1){
+                $manifest->addLabel("ED " . str_replace('_','-',$result['ed']));
+                $thumbnail->setID("{$imgpath}}/full/80,100/0/default.jpg");
+            }
+            
+
+            $canvas = new Canvas();
+            $sequence->addCanvas($canvas);
+            $canvas->setID("{$imgpath}/full/full/0/default.jpg");
+            $canvas->addLabel("p. $i");
+            $canvas->setWidth(800);
+            $canvas->setHeight(600);
+
+
+            $service_thumbnail = new \IIIF\PresentationAPI\Links\Service();
+            $thumbnail->setService($service_thumbnail);
+            $service_thumbnail->setContext("http://iiif.io/api/image/2/context.json");
+            $service_thumbnail->setID($imgpath);
+            $service_thumbnail->setProfile("http://iiif.io/api/image/2/level1.json");
+            
+            $content = new \IIIF\PresentationAPI\Resources\Content();            
+            $content->setId("{$imgpath}/full/full/0/default.jpg");
+            $content->setType("dctypes:Image");
+            $content->setFormat("image/jpeg");
+            $content->addService($service_thumbnail);
+
+
+            $annotation = new \IIIF\PresentationAPI\Resources\Annotation();
+            $annotation->setContent($content);
+            $annotation->setOn('on');
+            
+
+
+            $canvas->addImage($annotation);
+
+
+            
+            /*
             $images[] = [
                 'id' => $result->getId(),                
-                'filename' => $result->getFilename()
+                'filename' => $result->getFilename(),
+                'state' => $result->getState()
             ];
+            */
         }
         $data['images'] = $images;
-        return (new JsonResponse($data, Response::HTTP_OK))->setEncodingOptions( JSON_PRETTY_PRINT );
+        return (new JsonResponse($manifest->toArray(), Response::HTTP_OK))->setEncodingOptions( JSON_PRETTY_PRINT );
     }
+
+    
 
     /**
      * @Route("/search/{searchterm}", defaults={"searchterm" = null}, name="api_search", methods={"GET"})
     */
     public function search(Request $request, $searchterm): JsonResponse
     {   
-        $params=$this->getQuery($request, array('size','page','state','county','city','ed'));
+        $params=$this->getQuery($request, array('size','page','state','county','city','ed'),
+        array(
+            'state'=>'stateabbr',
+            'county'=>'countyname',
+            'city'=>'cityname'
+        ));
+        
+        
         $data=[];        
         $total=0;
         if(!empty($searchterm)){            
@@ -164,7 +243,7 @@ class CensusApiController extends AbstractController
             ], Response::HTTP_OK))->setEncodingOptions( JSON_PRETTY_PRINT );
         
     }
-    private function getQuery($request, $queryList = array() ){
+    private function getQuery($request, $queryList = array(), $replacement=array() ){
         $params=array(
             'size' => 25,
             'page' => 1,
@@ -174,6 +253,7 @@ class CensusApiController extends AbstractController
         if(empty($queryList)){
             return $params;
         }
+        
         foreach($queryList as $query){
             switch($query){
                 case 'size':
@@ -185,18 +265,21 @@ class CensusApiController extends AbstractController
                     if(!empty($page = $request->query->get('page'))){
                         $params['page'] = $page > 0? $page : 1;
                     }
-                    break;
-                case 'state':
-                    if(!empty($value = $request->query->get($query))){
-                        $params['query']['stateabbr'] = $value;
+                    break;                
+                case 'ed':
+                    if(!empty($value = $request->query->get($query))){                        
+                        $value = str_replace('-','_',$value);                        
+                        $params['query'][empty($replacement[$query]) ? $query : $replacement[$query]] = $value;
                     } 
                     break;
+                case 'county':
+                        if(!empty($value = $request->query->get($query))){                                      
+                            $params['query'][empty($replacement[$query]) ? $query : $replacement[$query]] = $value;
+                        } 
+                        break;
                 default:
-                    if(!empty($value = $request->query->get($query))){
-                        if($query == 'ed'){
-                            $value = str_replace('-','_',$value);
-                        }
-                        $params['query'][$query] = $value;
+                    if(!empty($value = $request->query->get($query))){                        
+                        $params['query'][empty($replacement[$query]) ? $query : $replacement[$query]] = $value;
                     } 
                     break;
 

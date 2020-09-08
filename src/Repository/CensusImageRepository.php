@@ -23,12 +23,47 @@ class CensusImageRepository extends ServiceEntityRepository
     * @return CensusImage[] Returns an array of CensusImage objects
     */
     
-    public function findCensusImageBy()
+    public function findCensusImageBy($params)
     {
-        return $this->createQueryBuilder('img')
-            //->andWhere('m.exampleField = :val')
-            //->setParameter('val', $value)
-            ->orderBy('img.id', 'ASC')
+        /*
+        if(empty($params['query']['ed']) || empty($params['query']['state'])){
+            return array();
+        }
+        */
+        $query = $params['query'];
+        
+
+        $queryBuilder = $this->createQueryBuilder('img')
+            ->leftJoin('App\Entity\Enumeration', 'enumer', 'WITH', 'enumer.id = img.enum')
+            ->leftJoin('App\Entity\EdSummary', 'ed', 'WITH', 'enumer.ed = ed.id')
+            ->leftJoin('App\Entity\State', 'state', 'WITH', 'state.id = img.state')
+            ->select('state.Name','state.Abbr','img.filename','ed.ed','img.publication','img.rollnum');
+        
+        
+        foreach($query as $key=>$value){ 
+            switch($key){
+                case 'state':
+                    $queryBuilder->andWhere("state.Abbr = :$key");
+                    break;
+                case 'county':
+                    $queryBuilder->leftJoin('App\Entity\County', 'county', 'WITH', 'county.id = img.county')
+                    ->andWhere("ed.county = :$key");
+                    break;
+                case 'city':
+                    $queryBuilder->leftJoin('App\Entity\City', 'city', 'WITH', 'city.id = img.city')
+                    ->andWhere("ed.city = :$key");
+                    break;
+                case 'ed':
+                    $queryBuilder->andWhere("ed.ed = :$key");
+                    break;
+                
+                
+            }
+            $queryBuilder->setParameter($key, $value);
+        }
+        
+         
+        return $queryBuilder->orderBy('img.id', 'ASC')
             ->setMaxResults(10)
             ->getQuery()
             ->getResult()
