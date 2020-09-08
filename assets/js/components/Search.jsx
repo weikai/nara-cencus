@@ -31,9 +31,10 @@ const QUERY_PATH = (params) => {
   return searchTerm + query;
 }
 class Search extends React.Component {
-  constructor() {
-    super()
-    this.urlParams = new URLSearchParams(window.location.search);
+  constructor(props) {
+    super(props)
+    console.log(this.props.location);
+    this.urlParams = new URLSearchParams(this.props.location.search);
     this.state = {
       searchTerm: this.getSearchTermFromUrl(),      
       results: [],
@@ -51,6 +52,7 @@ class Search extends React.Component {
         'selectedCity': { 'value': this.urlParams.get('city'), 'label': this.urlParams.get('city')?this.urlParams.get('city'):'All' },
       },
       ed:this.urlParams.get('ed'),
+      
     }
 
 
@@ -59,6 +61,9 @@ class Search extends React.Component {
   
 
   componentDidMount() {
+
+    console.log('componentDidMount');
+    console.log(this.props);
     this.getFormSelectOptions();   
   
     const {selectedState, selectedScounty, selectedCity}  = this.state.formSelectedOptions;
@@ -75,6 +80,14 @@ class Search extends React.Component {
         searchTerm: this.state.searchTerm
       });      
     }
+  }
+
+  onOpenModal = () => {
+    this.setState({ showModal: true });
+  }
+  
+  onCloseModal = () => {
+    this.setState({ showModal: false });
   }
 
   isEmptyform = () =>{
@@ -107,7 +120,7 @@ class Search extends React.Component {
   }
 
   getSearchTermFromUrl(){
-    return location.pathname.replace(/^\/search\/?/,'');
+    return this.props.location.pathname.replace(/^\/search\/?/,'');
   }
 
   onSubmit = (e) => {
@@ -284,6 +297,8 @@ class Search extends React.Component {
         />
 
         { <SearchResultList list={this.state.results} />}
+
+       
         {
           parseInt(this.state.total) > parseInt(this.state.size) &&
           <Pagination
@@ -296,6 +311,7 @@ class Search extends React.Component {
             onChange={this.onPaginationChange.bind(this)}
           />
         }
+        
       </div>
     );
   }
