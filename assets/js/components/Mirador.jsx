@@ -1,5 +1,7 @@
 import ReactDOM from "react-dom";
 import React, { Component } from "react";
+//import $ from 'jquery';
+//import { findDOMNode } from 'react-dom';
 
 class Mirador extends Component {
     constructor(props) {
@@ -8,7 +10,7 @@ class Mirador extends Component {
 
     }
 
-    shouldComponentUpdate(){
+    shouldComponentUpdate() {
         return false;
     }
 
@@ -26,8 +28,9 @@ class Mirador extends Component {
               name:"Local Storage",
               module: "LocalStorageEndpoint" }
           });
+          */
    
-        */         
+        
 
     }
 
