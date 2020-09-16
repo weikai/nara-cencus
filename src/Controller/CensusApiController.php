@@ -131,16 +131,20 @@ class CensusApiController extends AbstractController
         $sequence->addLabel("Normal Sequence", "en");
       
         
+        
         $i=0;
         foreach ($results as $result) {
             $i++;
+            
             $imgpath=$_ENV['CENSUS_IIIF_ENDPOINT'] . $_ENV['PREFIX1940'] . '%2F' . 
-            "{$result['Abbr']}%2Fm-t0627" . 
-             "-{$result['rollnum']}%2F" . str_replace('m-t1224','m-t0627',$result['filename']);
+            "{$result['abbr']}%2Fm-t0627" . 
+             "-{$result['rollnum']}%2F" . $result['filename'];
+             // . str_replace('m-t1224','m-t0627',$result['filename']);
             
              //set manifest thumbnail image to be the first one in the ED list
             if($i == 1){
-                $manifest->addLabel("ED " . str_replace('_','-',$result['ed']));
+                
+                $manifest->addLabel($result['statename'] . ' ' . "ED " . str_replace('_','-',$result['ed']));
                 $thumbnail->setID("{$imgpath}}/full/80,100/0/default.jpg");
             }
             

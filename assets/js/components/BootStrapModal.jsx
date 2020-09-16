@@ -9,18 +9,21 @@ const BootStrapModal = ({ parent, showModal }) => {
 
       <Modal
         show={showModal} onHide={parent.onCloseModal}
-        dialogClassName="modal-size"
+        dialogClassName="modal-size vw-95 vh-95"
       >
+        
         <Modal.Header closeButton>
           {/*
           <Modal.Title id="example-custom-modal-styling-title">
             Mirador Viewer Placeholder        
-          </Modal.Title>
+          </Modal.Title>          
+
           */}
           
         </Modal.Header>
+        
         <Modal.Body>
-        <Mirador config={{ id: "mirador" }} plugins={[]} />
+        <Mirador config={{ id: "viewer" }} manifest={parent.state.manifest} plugins={[]} />
           
         </Modal.Body>
       </Modal>

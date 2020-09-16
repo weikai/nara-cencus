@@ -25,11 +25,10 @@ class CensusImageRepository extends ServiceEntityRepository
     
     public function findCensusImageBy($params)
     {
-        /*
+        
         if(empty($params['query']['ed']) || empty($params['query']['state'])){
             return array();
-        }
-        */
+        }        
         $query = $params['query'];
         
 
@@ -37,7 +36,7 @@ class CensusImageRepository extends ServiceEntityRepository
             ->leftJoin('App\Entity\Enumeration', 'enumer', 'WITH', 'enumer.id = img.enum')
             ->leftJoin('App\Entity\EdSummary', 'ed', 'WITH', 'enumer.ed = ed.id')
             ->leftJoin('App\Entity\State', 'state', 'WITH', 'state.id = img.state')
-            ->select('state.Name','state.Abbr','img.filename','ed.ed','img.publication','img.rollnum');
+            ->select('state.Name AS statename','state.Abbr as abbr','img.filename','ed.ed','img.publication','img.rollnum');
         
         
         foreach($query as $key=>$value){ 

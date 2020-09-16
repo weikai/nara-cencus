@@ -3,11 +3,24 @@ import mirador from "mirador";
 
 class Mirador extends Component {
     constructor() {
-        super()
+        super();
+        
+        console.log('module constructor');
+        
+
+    }
+    componentDidMount() {
+        
+
+        const { config, manifest, plugins } = this.props;
+
+        console.log('module didMount');
+        console.log(manifest);
+
         this.myconfig={
-            id: 'viewer',
+            id: config.id,
             windows: [{
-                manifestId: 'https://iiif.drupalme.net/manifest.json',                
+                manifestId: manifest,                
                 thumbnailNavigationPosition: 'far-bottom',
                 allowClose: false,
             }],            
@@ -19,15 +32,14 @@ class Mirador extends Component {
             },
 
         };
-    }
-    componentDidMount() {
-        const { config, plugins } = this.props;
-        
+
         mirador.viewer(this.myconfig);
     }
     render() {
-        const { config } = this.props;
-        return <div id={this.myconfig.id} />;
+        console.log('module render');
+        
+        const { config} = this.props;
+        return <div id={config.id} />;
     }
 }
 

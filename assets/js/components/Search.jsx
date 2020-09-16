@@ -13,25 +13,8 @@ import Button from 'react-bootstrap/Button';
 
 const API_ENDPOINT = '/api';
 
-const API_URL = (api,params) => {
-  return API_ENDPOINT + '/' + api + QUERY_PATH(params);
-}
-const QUERY_PATH = (params) => {
-  let query=[];
-  let searchTerm='';
-  for (const key of Object.keys(params)) {    
-    if (params[key] !== "" && params[key] !== null) {            
-      if(key === 'searchTerm'){
-        searchTerm = '/' + params[key];
-      }
-      else{
-        query.push(key + '=' + params[key])
-      }
-    }
-  }    
-  query = query.length? '?' + query.join('&'): '';
-  return searchTerm + query;
-}
+
+
 class Search extends React.Component {
   constructor(props) {
     super(props)
@@ -55,6 +38,7 @@ class Search extends React.Component {
       },
       ed:this.urlParams.get('ed'),
       showModal:false,
+      manifest:''      
       
     }
 
@@ -62,11 +46,20 @@ class Search extends React.Component {
 
   }
   
+  componentDidUpdate(){
+    console.log('component update');
+    this.getQueryPath({
+      
+    });
+  }
 
   componentDidMount() {
 
     console.log('componentDidMount');
     console.log(this.props);
+    console.log('urlParams');
+    console.log(this.urlParams);
+    
     this.getFormSelectOptions();   
   
     const {selectedState, selectedScounty, selectedCity}  = this.state.formSelectedOptions;
@@ -81,17 +74,57 @@ class Search extends React.Component {
         ed:this.state.ed,
         searchTerm: this.state.searchTerm
       });      
+
+      
+      if( this.urlParams.has('viewer')){                
+        //this.onOpenModal(this.urlParams.get('state'),this.urlParams.get('ed'));
+      }
     }
+    console.log('calling did mount',this.getQueryPath());
+  }
+
+  getApiUrl = (api,params) => {
+    return API_ENDPOINT + '/' + api + this.getQueryPath(params);
+  }
+  getQueryPath = (params = this.urlParams) => {
+    let query=[];
+    let searchTerm='';
+  
+    //convert URLSearchParam object value to query string
+    if( typeof params === 'object' && params.constructor.name === 'URLSearchParams'){    
+      for(var pair of params.entries()) {
+        query.push(pair[0]+ '='+ pair[1]);       
+     }
+    }
+    else{
+      for (const key of Object.keys(params)) {    
+        if (params[key] !== "" && params[key] !== null) {            
+          if(key === 'searchTerm'){
+            searchTerm = '/' + params[key];
+          }
+          else{
+            query.push(key + '=' + params[key])
+          }
+        }
+      }    
+    }
+    query = query.length? '?' + query.join('&'): '';
+    return searchTerm + query;
   }
 
   //Open viewer modal
-  onOpenModal = () => {    
-    this.setState({ showModal: true });
+  onOpenModal = (state,ed) => {    
+    this.setState({ showModal: true, manifest: `/api/manifest?state=${state}&ed=${ed}` });  
+    console.log('calling modal',this.getQueryPath());    
+    this.updateQueryUrl({viewer:'on', ed,state});
+    console.log('after calling modal',this.getQueryPath());
   }
   
   //Close viewer modal
   onCloseModal = () => {
     this.setState({ showModal: false });
+    console.log('close modale',this.getQueryPath());
+    this.updateQueryUrl({viewer:''});
   }
   //check to see if form is empty
   isEmptyform = () =>{
@@ -106,10 +139,11 @@ class Search extends React.Component {
     }
   }
 
+ 
   getFormSelectOptions = (formSelectedOptions = this.state.formSelectedOptions) => {
     const { selectedState, selectedCounty, selectedCity } = formSelectedOptions;
          
-    fetch(API_URL('location',{
+    fetch(this.getApiUrl('location',{
       state:selectedState.value ? selectedState.value : '',
       county:selectedCounty.value ? selectedCounty.value : '',
       city:selectedCity.value ? selectedCity.value : '',
@@ -142,14 +176,15 @@ class Search extends React.Component {
       ed:edNumber,
       searchTerm: tmpSearchTerm
     };
-    this.fetchSearchResults(query);    
-    window.history.pushState(null, null, '/search' + QUERY_PATH(query));
+    this.fetchSearchResults(query);  
     
+    this.updateQueryUrl(query);
   }  
   onFormReset = (e) =>{
-    this.urlParams = new URLSearchParams(window.location.search);
+    //this.urlParams = new URLSearchParams(window.location.search);
     // change url base on form value
-    window.history.pushState(null, null, '/search');
+    window.history.pushState(null, 'reset');
+    
     let emptyStates = {
       searchTerm: '',      
       results: [],
@@ -163,15 +198,52 @@ class Search extends React.Component {
         'selectedCity': { 'value':'', 'label':'All' },
       }      
     };
-    this.setState(emptyStates);
+    
+    
+    
+    this.setState(emptyStates);    
     this.getFormSelectOptions(emptyStates.formSelectedOptions); 
+    this.updateQueryUrl(null,"reset");
+    console.log('query path after reset url',this.getQueryPath());
     
   }
+  
+  updateQueryUrl = (query, opt="update") =>{       
+    if(opt === "update" || opt === "reset"){
+      if(opt === 'reset'){
+        this.setState({searchTerm:''});
+      }
+      for(var pair of this.urlParams.entries()) {        
+          console.log('delete param ' + pair[0]);
+          this.urlParams.delete(pair[0]);        
+      }
+    }
+    
+    if(query){      
+      
+      for (const [key, value] of Object.entries(query) ) {
+        console.log(key,value);
+        if(key === 'searchTerm' && value){
+          this.state.searchTerm = value;
+        }
+        else if(value){                    
+          this.urlParams.set(key,value);
+        }
+      }
+    }    
+    console.log(this.getQueryPath(this.urlParams));
+    
+    let searchTerm = this.state.searchTerm ? '/' + this.state.searchTerm:''
+    window.history.pushState(null, null, '/search' + searchTerm + this.getQueryPath(this.urlParams));    
 
+    console.log('/search' + searchTerm + this.getQueryPath(this.urlParams));
+    console.log('***end');
+  }  
+  
   //function to fetch data
   fetchSearchResults = (query) => {
     this.runSearch = true;
-    fetch(API_URL('search',query))
+    fetch(this.getApiUrl('search',query))
     .then(data => data.json())
     .then(({ results, page, total }) =>
       this.setState({ results: [...results], page, total, searchTerm: query.searchTerm,ed:query.ed })
@@ -185,7 +257,7 @@ class Search extends React.Component {
   onPaginationChange = (page) => {    
     const {searchTerm, formSelectedOptions, ed,size  } = this.state;
     
-    fetch(API_URL('search',{
+    fetch(this.getApiUrl('search',{
       size,
       state:formSelectedOptions.selectedState.value,
       county:formSelectedOptions.selectedCounty.value,
@@ -198,15 +270,26 @@ class Search extends React.Component {
       .then(({ results, page, total }) =>
         this.setState({ results: [...results], page, total })
       )
-      .then(()=>{        
-        window.history.pushState(null, null, '/search' + QUERY_PATH({
+      .then(()=>{     
+          
+        this.updateQueryUrl({
+          searchTerm:this.state.searchTerm,
+          state:this.state.formSelectedOptions.selectedState.value,        
+          county:this.state.formSelectedOptions.selectedCounty.value,
+          city:this.state.formSelectedOptions.selectedCity.value,
+          page:this.state.page,
+          size:this.state.size
+        })
+        /*window.history.pushState(null, null, '/search' + this.getQueryPath({
         searchTerm:this.state.searchTerm,
         state:this.state.formSelectedOptions.selectedState.value,        
         county:this.state.formSelectedOptions.selectedCounty.value,
         city:this.state.formSelectedOptions.selectedCity.value,
         page:this.state.page,
         size:this.state.size
-      }))})
+      }))
+      */
+    })
       .catch(error => {
         console.log(error);
       });
