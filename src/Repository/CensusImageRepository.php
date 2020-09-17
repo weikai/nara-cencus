@@ -55,6 +55,9 @@ class CensusImageRepository extends ServiceEntityRepository
                 case 'ed':
                     $queryBuilder->andWhere("ed.ed = :$key");
                     break;
+                case 'type':
+                    $queryBuilder->andWhere("img.type = :$key");
+                    break;
                 
                 
             }

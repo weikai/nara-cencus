@@ -48,9 +48,9 @@ class Search extends React.Component {
   
   componentDidUpdate(){
     console.log('component update');
-    this.getQueryPath({
-      
-    });
+    console.log(this.state);
+    console.log(this.getQueryPath());
+    
   }
 
   componentDidMount() {
@@ -208,7 +208,8 @@ class Search extends React.Component {
     
   }
   
-  updateQueryUrl = (query, opt="update") =>{       
+  updateQueryUrl = (query, opt="update") =>{   
+    console.log(`update query url opton ${opt}`);
     if(opt === "update" || opt === "reset"){
       if(opt === 'reset'){
         this.setState({searchTerm:''});
@@ -234,7 +235,12 @@ class Search extends React.Component {
     console.log(this.getQueryPath(this.urlParams));
     
     let searchTerm = this.state.searchTerm ? '/' + this.state.searchTerm:''
-    window.history.pushState(null, null, '/search' + searchTerm + this.getQueryPath(this.urlParams));    
+    if(opt === "reset"){
+      window.history.pushState(null, null, '/search');     
+    }
+    else{
+      window.history.pushState(null, null, '/search' + searchTerm + this.getQueryPath(this.urlParams));    
+    }
 
     console.log('/search' + searchTerm + this.getQueryPath(this.urlParams));
     console.log('***end');

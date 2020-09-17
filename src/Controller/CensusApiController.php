@@ -22,6 +22,8 @@ use Symfony\Component\Dotenv\Dotenv;
 use IIIF\PresentationAPI\Resources\Manifest;
 use IIIF\PresentationAPI\Resources\Sequence;
 use IIIF\PresentationAPI\Resources\Canvas;
+use IIIF\PresentationAPI\Links;
+use IIIF\PresentationAPI\Links\Related;
 
 /**
  * Class CensusApiController
@@ -109,17 +111,31 @@ class CensusApiController extends AbstractController
         $images=[];
         $params=$this->getQuery($request, array('state','county','city','ed'));
 
+        //1 maps, 2	descriptions, 3	schedules
+        //var_dump($params);
+        if(!empty($params['query']['ed'])){
+            $params['query']['type'] = 3;
+        }
+
         $censusImageRepository = $this->entityManager->getRepository(CensusImage::class);
         $results = $censusImageRepository->findCensusImageBy($params);   
 
 
 
-        $manifest = new Manifest(true);
-        $manifest->setID("http://example.org/iiif/book1/manifest");
-            
+        $manifest = new Manifest(true);        
+        $manifest->setID($request->getUri());
+        
+        
+        //var_dump($uri);
+        $related = new Related();
+        $related->setID("http://example.org/iiif/book1/manifest");
+        $related->setLabel('test');
+        $manifest->addRelated($related);
+
 
         $thumbnail = new \IIIF\PresentationAPI\Properties\Thumbnail();
         $manifest->addThumbnail($thumbnail);
+        //$manifest->addRelated($related);
         
         
         
@@ -129,18 +145,32 @@ class CensusApiController extends AbstractController
         $sequence->setID("http://example.org/iiif/book1/sequence/normal");
         //$sequence->addLabel("Current Page Order");
         $sequence->addLabel("Normal Sequence", "en");
+        $sequence->addRelated($related);
       
         
         
         $i=0;
         foreach ($results as $result) {
             $i++;
-            
             $imgpath=$_ENV['CENSUS_IIIF_ENDPOINT'] . $_ENV['PREFIX1940'] . '%2F' . 
-            "{$result['abbr']}%2Fm-t0627" . 
-             "-{$result['rollnum']}%2F" . $result['filename'];
+            $result['publication'] . '%2F' . "{$result['abbr']}%2F";
+            switch($result['publication']){
+                case 'A3378':
+                    $imgpath .=  $result['filename'];
+                    break;
+                case 'T1224':
+                    $imgpath .=  $result['filename'];
+                    break;
+                case 'T627':
+                    $imgpath .= "m-t0627-{$result['rollnum']}%2F" . $result['filename'];
+                    break;
+            }
+             //. str_replace('t627', 't0627',strtolower($result['publication'])). 
+             //"-{$result['rollnum']}%2F" . $result['filename'];
              // . str_replace('m-t1224','m-t0627',$result['filename']);
             
+            //var_dump(str_replace('%2F', '/', $imgpath));
+            //continue;
              //set manifest thumbnail image to be the first one in the ED list
             if($i == 1){
                 
