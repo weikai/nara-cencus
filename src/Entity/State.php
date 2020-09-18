@@ -26,12 +26,12 @@ class State
     private $cityStates;
 
     /**
-     * @ORM\Column(type="string", length=40)
+     * @ORM\Column(type="string", length=40, unique=true)
      */
     private $Name;
 
     /**
-     * @ORM\Column(type="string", length=2)
+     * @ORM\Column(type="string", length=2, unique=true)
      */
     private $Abbr;
 
@@ -50,12 +50,18 @@ class State
      */
     private $enumerations;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Address::class, mappedBy="state")
+     */
+    private $addresses;
+
     public function __construct()
     {
         $this->cityStates = new ArrayCollection();
         $this->edSummaries = new ArrayCollection();
         $this->censusImages = new ArrayCollection();
         $this->enumerations = new ArrayCollection();
+        $this->addresses = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -205,6 +211,37 @@ class State
             // set the owning side to null (unless already changed)
             if ($enumeration->getState() === $this) {
                 $enumeration->setState(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Address[]
+     */
+    public function getAddresses(): Collection
+    {
+        return $this->addresses;
+    }
+
+    public function addAddress(Address $address): self
+    {
+        if (!$this->addresses->contains($address)) {
+            $this->addresses[] = $address;
+            $address->setState($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAddress(Address $address): self
+    {
+        if ($this->addresses->contains($address)) {
+            $this->addresses->removeElement($address);
+            // set the owning side to null (unless already changed)
+            if ($address->getState() === $this) {
+                $address->setState(null);
             }
         }
 

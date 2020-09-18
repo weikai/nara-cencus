@@ -21,7 +21,7 @@ class EdSummary
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=20)
+     * @ORM\Column(type="string", length=20, unique=true)
      */
     private $ed;
 

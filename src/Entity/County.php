@@ -26,7 +26,7 @@ class County
     private $cityStates;
 
     /**
-     * @ORM\Column(type="string", length=40)
+     * @ORM\Column(type="string", length=40, unique=true)
      */
     private $Name;
 

@@ -21,7 +21,7 @@ class City
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=50, unique=true)
      */
     private $Name;
 
@@ -40,11 +40,17 @@ class City
      */
     private $enumerations;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Address::class, mappedBy="city")
+     */
+    private $addresses;
+
     public function __construct()
     {
         $this->cityStates = new ArrayCollection();
         $this->censusImages = new ArrayCollection();
         $this->enumerations = new ArrayCollection();
+        $this->addresses = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -151,6 +157,37 @@ class City
             // set the owning side to null (unless already changed)
             if ($enumeration->getCity() === $this) {
                 $enumeration->setCity(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Address[]
+     */
+    public function getAddresses(): Collection
+    {
+        return $this->addresses;
+    }
+
+    public function addAddress(Address $address): self
+    {
+        if (!$this->addresses->contains($address)) {
+            $this->addresses[] = $address;
+            $address->setCity($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAddress(Address $address): self
+    {
+        if ($this->addresses->contains($address)) {
+            $this->addresses->removeElement($address);
+            // set the owning side to null (unless already changed)
+            if ($address->getCity() === $this) {
+                $address->setCity(null);
             }
         }
 
